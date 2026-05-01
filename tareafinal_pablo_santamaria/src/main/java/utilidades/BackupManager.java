@@ -1,7 +1,7 @@
 package utilidades;
 
-import modelos.entidades.*;
 import controladores.*;
+import modelos.entidades.*;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -18,10 +18,19 @@ public class BackupManager {
     private CredencialController credencialController = new CredencialController();
     private PrestamoController prestamoController = new PrestamoController();
 
-    public void crearBackup() {
+    // Escapa campos que puedan contener comas para no romper el CSV
+    private String csv(Object valor) {
+        if (valor == null) return "";
+        String s = valor.toString();
+        if (s.contains(",") || s.contains("\"") || s.contains("\n")) {
+            s = s.replace("\"", "\"\"");
+            return "\"" + s + "\"";
+        }
+        return s;
+    }
 
+    public void crearBackup() {
         try {
-            // 1. Crear carpeta con fecha
             String timestamp = LocalDateTime.now()
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"));
 
@@ -29,146 +38,91 @@ public class BackupManager {
             java.io.File dir = new java.io.File(carpeta);
             dir.mkdir();
 
-            // 2. Exportar tablas
-            exportarLibros(carpeta);
+            exportarBibliotecas(carpeta);
             exportarAutores(carpeta);
-            exportarLector(carpeta);
-            exportarPrestamo(carpeta);
-            exportarCredencial(carpeta);
-            exportarBiblioteca(carpeta);
+            exportarLibros(carpeta);
+            exportarLectores(carpeta);
+            exportarCredenciales(carpeta);
+            exportarPrestamos(carpeta);
 
-            System.out.println("✔ Backup creado correctamente");
+            System.out.println("✔ Backup creado en carpeta: " + carpeta);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void exportarLibros(String carpeta) throws Exception {
-
-        List<Libro> libros = libroController.listarLibros();
-
-        PrintWriter pw = new PrintWriter(
-                new FileWriter(carpeta + "/libros.csv"));
-
-        pw.println("id,titulo,anio,estado");
-
-        for (Libro l : libros) {
-            pw.println(
-                    l.getIdLibro() + "," +
-                            l.getTitulo() + "," +
-                            l.getAnioPublicacion() + "," +
-                            l.getEstado());
+    private void exportarBibliotecas(String carpeta) throws Exception {
+        List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
+        PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/bibliotecas.csv"));
+        pw.println("id,nombre,direccion");
+        for (Biblioteca b : bibliotecas) {
+            pw.println(b.getIdBiblioteca() + "," + csv(b.getNombre()) + "," + csv(b.getDireccion()));
         }
-
         pw.close();
     }
 
     private void exportarAutores(String carpeta) throws Exception {
-
         List<Autor> autores = autorController.listarAutores();
-
-        PrintWriter pw = new PrintWriter(
-                new FileWriter(carpeta + "/autores.csv"));
-
+        PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/autores.csv"));
         pw.println("id,nombre,apellido1,apellido2,nacionalidad");
-
         for (Autor a : autores) {
-            pw.println(
-                    a.getIdAutor() + "," +
-                            a.getNombre() + "," +
-                            a.getApellido1() + "," +
-                            a.getApellido2() + "," +
-                            a.getNacionalidad());
+            pw.println(a.getIdAutor() + "," + csv(a.getNombre()) + "," +
+                    csv(a.getApellido1()) + "," + csv(a.getApellido2()) + "," +
+                    csv(a.getNacionalidad()));
         }
-
         pw.close();
     }
 
-    private void exportarBiblioteca(String carpeta) throws Exception {
-
-        List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
-
-        PrintWriter pw = new PrintWriter(
-                new FileWriter(carpeta + "/bibliotecas.csv"));
-
-        pw.println("id,nombre,direccion");
-
-        for (Biblioteca b : bibliotecas) {
-            pw.println(
-                    b.getIdBiblioteca() + "," +
-                            b.getNombre() + "," +
-                            b.getDireccion());
+    private void exportarLibros(String carpeta) throws Exception {
+        List<Libro> libros = libroController.listarLibros();
+        PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/libros.csv"));
+        pw.println("id,titulo,anio,estado,id_autor,id_biblioteca");
+        for (Libro l : libros) {
+            int idAutor = (l.getAutor() != null) ? l.getAutor().getIdAutor() : 0;
+            int idBiblioteca = (l.getBiblioteca() != null) ? l.getBiblioteca().getIdBiblioteca() : 0;
+            pw.println(l.getIdLibro() + "," + csv(l.getTitulo()) + "," +
+                    l.getAnioPublicacion() + "," + csv(l.getEstado()) + "," +
+                    idAutor + "," + idBiblioteca);
         }
-
         pw.close();
     }
 
-    private void exportarLector(String carpeta) throws Exception {
-
+    private void exportarLectores(String carpeta) throws Exception {
         List<Lector> lectores = lectorController.listarLectores();
-
-        PrintWriter pw = new PrintWriter(
-                new FileWriter(carpeta + "/lectores.csv"));
-
+        PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/lectores.csv"));
         pw.println("id,nombre,apellido1,apellido2,email,telefono,id_biblioteca");
-
         for (Lector l : lectores) {
             int idBiblioteca = (l.getBiblioteca() != null) ? l.getBiblioteca().getIdBiblioteca() : 0;
-            pw.println(
-                    l.getIdLector() + "," +
-                            l.getNombre() + "," +
-                            l.getApellido1() + "," +
-                            l.getApellido2() + "," +
-                            l.getEmail() + "," +
-                            l.getTelefono() + "," +
-                            idBiblioteca);
+            pw.println(l.getIdLector() + "," + csv(l.getNombre()) + "," +
+                    csv(l.getApellido1()) + "," + csv(l.getApellido2()) + "," +
+                    csv(l.getEmail()) + "," + csv(l.getTelefono()) + "," + idBiblioteca);
         }
-
         pw.close();
     }
 
-    private void exportarCredencial(String carpeta) throws Exception {
-
+    private void exportarCredenciales(String carpeta) throws Exception {
         List<Credencial> credenciales = credencialController.listarCredenciales();
-
-        PrintWriter pw = new PrintWriter(
-                new FileWriter(carpeta + "/credenciales.csv"));
-
+        PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/credenciales.csv"));
         pw.println("id,numero_tarjeta,fecha_emision,id_lector");
-
         for (Credencial c : credenciales) {
             int idLector = (c.getLector() != null) ? c.getLector().getIdLector() : 0;
-            pw.println(
-                    c.getIdCredencial() + "," +
-                            c.getNumeroTarjeta() + "," +
-                            c.getFechaEmision() + "," +
-                            idLector);
+            pw.println(c.getIdCredencial() + "," + csv(c.getNumeroTarjeta()) + "," +
+                    csv(c.getFechaEmision()) + "," + idLector);
         }
-
         pw.close();
     }
 
-    private void exportarPrestamo(String carpeta) throws Exception {
-
+    private void exportarPrestamos(String carpeta) throws Exception {
         List<Prestamo> prestamos = prestamoController.listarPrestamos();
-
-        PrintWriter pw = new PrintWriter(
-                new FileWriter(carpeta + "/prestamos.csv"));
-
+        PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/prestamos.csv"));
         pw.println("id,fecha_inicio,fecha_fin,id_lector,id_libro");
-
         for (Prestamo p : prestamos) {
             int idLector = (p.getLector() != null) ? p.getLector().getIdLector() : 0;
             int idLibro = (p.getLibro() != null) ? p.getLibro().getIdLibro() : 0;
-            pw.println(
-                    p.getIdPrestamo() + "," +
-                            p.getFechaInicio() + "," +
-                            p.getFechaFin() + "," +
-                            idLector + "," +
-                            idLibro);
+            pw.println(p.getIdPrestamo() + "," + csv(p.getFechaInicio()) + "," +
+                    csv(p.getFechaFin()) + "," + idLector + "," + idLibro);
         }
-
         pw.close();
     }
 }

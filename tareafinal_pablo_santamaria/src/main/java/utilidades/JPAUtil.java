@@ -9,12 +9,11 @@ public class JPAUtil {
     private static final EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("bibliotecaPU");
 
-    // Obtener EntityManager
     public static EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
-    // Cerrar fábrica (solo al cerrar la app)
+    // Llamar solo al cerrar la aplicación
     public static void close() {
         if (emf != null && emf.isOpen()) {
             emf.close();

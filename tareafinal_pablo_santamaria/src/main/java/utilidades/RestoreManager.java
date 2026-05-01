@@ -29,12 +29,9 @@ public class RestoreManager {
         File dir = new File(".");
         File[] files = dir.listFiles((d, name) -> name.startsWith("backup_"));
 
-        if (files == null || files.length == 0) {
-            return null;
-        }
+        if (files == null || files.length == 0) return null;
 
         Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
-
         return files[0].getAbsolutePath();
     }
 
@@ -48,12 +45,10 @@ public class RestoreManager {
 
         if (files != null) {
             Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
-
             for (File f : files) {
                 copias.add(f.getAbsolutePath());
             }
         }
-
         return copias;
     }
 
@@ -61,14 +56,14 @@ public class RestoreManager {
     // RESTAURAR
     // =====================
     public void restaurar(String carpeta) {
-
         try {
             borrarTodo();
 
+            // Orden importante: primero entidades sin dependencias
             restaurarBibliotecas(carpeta + "/bibliotecas.csv");
             restaurarAutores(carpeta + "/autores.csv");
-            restaurarLectores(carpeta + "/lectores.csv");
             restaurarLibros(carpeta + "/libros.csv");
+            restaurarLectores(carpeta + "/lectores.csv");
             restaurarCredenciales(carpeta + "/credenciales.csv");
             restaurarPrestamos(carpeta + "/prestamos.csv");
 
@@ -83,26 +78,20 @@ public class RestoreManager {
     // BORRADO GENERAL
     // -------------------------
     private void borrarTodo() {
-
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
-
             em.createQuery("DELETE FROM Prestamo").executeUpdate();
             em.createQuery("DELETE FROM Credencial").executeUpdate();
             em.createQuery("DELETE FROM Libro").executeUpdate();
             em.createQuery("DELETE FROM Lector").executeUpdate();
             em.createQuery("DELETE FROM Autor").executeUpdate();
             em.createQuery("DELETE FROM Biblioteca").executeUpdate();
-
             tx.commit();
             System.out.println("✔ Base de datos limpiada correctamente");
-
         } catch (Exception e) {
-            if (tx.isActive())
-                tx.rollback();
+            if (tx.isActive()) tx.rollback();
             e.printStackTrace();
         } finally {
             em.close();
@@ -110,52 +99,75 @@ public class RestoreManager {
     }
 
     // -------------------------
+    // BIBLIOTECAS
+    // -------------------------
+    private void restaurarBibliotecas(String file) throws Exception {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        br.readLine(); // cabecera
+
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] data = line.split(",");
+            Biblioteca b = new Biblioteca();
+            b.setIdBiblioteca(Integer.parseInt(data[0]));
+            b.setNombre(data[1]);
+            b.setDireccion(data.length > 2 ? data[2] : "");
+            bibliotecaController.insertarBiblioteca(b);
+        }
+        br.close();
+    }
+
+    // -------------------------
     // AUTORES
     // -------------------------
     private void restaurarAutores(String file) throws Exception {
-
         BufferedReader br = new BufferedReader(new FileReader(file));
+        br.readLine(); // cabecera
 
-        String line = br.readLine(); // saltar cabecera
-
+        String line;
         while ((line = br.readLine()) != null) {
-
             String[] data = line.split(",");
-
             Autor a = new Autor();
             a.setIdAutor(Integer.parseInt(data[0]));
             a.setNombre(data[1]);
             a.setApellido1(data[2]);
             a.setApellido2(data[3]);
             a.setNacionalidad(data[4]);
-
             autorController.insertarAutor(a);
         }
-
         br.close();
     }
 
     // -------------------------
-    // BIBLIOTECAS
+    // LIBROS (con autor y biblioteca)
     // -------------------------
-    private void restaurarBibliotecas(String file) throws Exception {
-
+    private void restaurarLibros(String file) throws Exception {
         BufferedReader br = new BufferedReader(new FileReader(file));
+        br.readLine(); // cabecera
 
-        String line = br.readLine(); // cabecera
-
+        String line;
         while ((line = br.readLine()) != null) {
-
             String[] data = line.split(",");
+            Libro l = new Libro();
+            l.setIdLibro(Integer.parseInt(data[0]));
+            l.setTitulo(data[1]);
+            l.setAnioPublicacion(Integer.parseInt(data[2]));
+            l.setEstado(data[3]);
 
-            Biblioteca b = new Biblioteca();
-            b.setIdBiblioteca(Integer.parseInt(data[0]));
-            b.setNombre(data[1]);
-            b.setDireccion(data[2]);
+            // Autor (columna 4)
+            if (data.length > 4 && !data[4].isEmpty() && !data[4].equals("0")) {
+                Autor a = autorController.buscarPorId(Integer.parseInt(data[4]));
+                l.setAutor(a);
+            }
 
-            bibliotecaController.insertarBiblioteca(b);
+            // Biblioteca (columna 5)
+            if (data.length > 5 && !data[5].isEmpty() && !data[5].equals("0")) {
+                Biblioteca b = bibliotecaController.buscarPorId(Integer.parseInt(data[5]));
+                l.setBiblioteca(b);
+            }
+
+            libroController.insertarLibro(l);
         }
-
         br.close();
     }
 
@@ -163,15 +175,12 @@ public class RestoreManager {
     // LECTORES
     // -------------------------
     private void restaurarLectores(String file) throws Exception {
-
         BufferedReader br = new BufferedReader(new FileReader(file));
+        br.readLine(); // cabecera
 
-        String line = br.readLine(); // cabecera
-
+        String line;
         while ((line = br.readLine()) != null) {
-
             String[] data = line.split(",");
-
             Lector l = new Lector();
             l.setIdLector(Integer.parseInt(data[0]));
             l.setNombre(data[1]);
@@ -181,39 +190,12 @@ public class RestoreManager {
             l.setTelefono(data[5]);
 
             if (data.length > 6 && !data[6].isEmpty() && !data[6].equals("0")) {
-                int idBib = Integer.parseInt(data[6]);
-                Biblioteca b = bibliotecaController.buscarPorId(idBib);
+                Biblioteca b = bibliotecaController.buscarPorId(Integer.parseInt(data[6]));
                 l.setBiblioteca(b);
             }
 
             lectorController.insertarLector(l);
         }
-
-        br.close();
-    }
-
-    // -------------------------
-    // LIBROS
-    // -------------------------
-    private void restaurarLibros(String file) throws Exception {
-
-        BufferedReader br = new BufferedReader(new FileReader(file));
-
-        String line = br.readLine(); // cabecera
-
-        while ((line = br.readLine()) != null) {
-
-            String[] data = line.split(",");
-
-            Libro l = new Libro();
-            l.setIdLibro(Integer.parseInt(data[0]));
-            l.setTitulo(data[1]);
-            l.setAnioPublicacion(Integer.parseInt(data[2]));
-            l.setEstado(data[3]);
-
-            libroController.insertarLibro(l);
-        }
-
         br.close();
     }
 
@@ -221,32 +203,27 @@ public class RestoreManager {
     // CREDENCIALES
     // -------------------------
     private void restaurarCredenciales(String file) throws Exception {
-
         BufferedReader br = new BufferedReader(new FileReader(file));
+        br.readLine(); // cabecera
 
-        String line = br.readLine(); // cabecera
-
+        String line;
         while ((line = br.readLine()) != null) {
-
             String[] data = line.split(",");
-
             Credencial c = new Credencial();
             c.setIdCredencial(Integer.parseInt(data[0]));
             c.setNumeroTarjeta(data[1]);
 
-            if (data[2] != null && !data[2].isEmpty() && !data[2].equals("null")) {
+            if (data.length > 2 && !data[2].isEmpty() && !data[2].equals("null")) {
                 c.setFechaEmision(LocalDate.parse(data[2]));
             }
 
             if (data.length > 3 && !data[3].isEmpty() && !data[3].equals("0")) {
-                int idLector = Integer.parseInt(data[3]);
-                Lector l = lectorController.buscarPorId(idLector);
+                Lector l = lectorController.buscarPorId(Integer.parseInt(data[3]));
                 c.setLector(l);
             }
 
             credencialController.insertarCredencial(c);
         }
-
         br.close();
     }
 
@@ -254,38 +231,32 @@ public class RestoreManager {
     // PRÉSTAMOS
     // -------------------------
     private void restaurarPrestamos(String file) throws Exception {
-
         BufferedReader br = new BufferedReader(new FileReader(file));
+        br.readLine(); // cabecera
 
-        String line = br.readLine(); // cabecera
-
+        String line;
         while ((line = br.readLine()) != null) {
-
             String[] data = line.split(",");
-
             Prestamo p = new Prestamo();
             p.setIdPrestamo(Integer.parseInt(data[0]));
             p.setFechaInicio(LocalDate.parse(data[1]));
 
-            if (data[2] != null && !data[2].isEmpty() && !data[2].equals("null")) {
+            if (data.length > 2 && !data[2].isEmpty() && !data[2].equals("null")) {
                 p.setFechaFin(LocalDate.parse(data[2]));
             }
 
             if (data.length > 3 && !data[3].isEmpty() && !data[3].equals("0")) {
-                int idLector = Integer.parseInt(data[3]);
-                Lector l = lectorController.buscarPorId(idLector);
+                Lector l = lectorController.buscarPorId(Integer.parseInt(data[3]));
                 p.setLector(l);
             }
 
             if (data.length > 4 && !data[4].isEmpty() && !data[4].equals("0")) {
-                int idLibro = Integer.parseInt(data[4]);
-                Libro lib = libroController.buscarPorId(idLibro);
+                Libro lib = libroController.buscarPorId(Integer.parseInt(data[4]));
                 p.setLibro(lib);
             }
 
             prestamoController.insertarPrestamo(p);
         }
-
         br.close();
     }
 }
