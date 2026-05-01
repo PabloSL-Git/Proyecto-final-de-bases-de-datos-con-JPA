@@ -9,11 +9,9 @@ import java.util.List;
 
 public class PrestamoController {
 
-    // INSERTAR
     public void insertarPrestamo(Prestamo prestamo) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.persist(prestamo);
@@ -27,11 +25,9 @@ public class PrestamoController {
         }
     }
 
-    // ACTUALIZAR
     public void actualizarPrestamo(Prestamo prestamo) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.merge(prestamo);
@@ -45,20 +41,16 @@ public class PrestamoController {
         }
     }
 
-    // BORRAR
     public void borrarPrestamo(int idPrestamo) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
-
             Prestamo prestamo = em.find(Prestamo.class, idPrestamo);
             if (prestamo != null) {
                 em.remove(prestamo);
                 System.out.println("✔ Préstamo eliminado");
             }
-
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
@@ -68,22 +60,17 @@ public class PrestamoController {
         }
     }
 
-    // LISTAR
     public List<Prestamo> listarPrestamos() {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
-            return em.createQuery("SELECT p FROM Prestamo p", Prestamo.class)
-                    .getResultList();
+            return em.createQuery("SELECT p FROM Prestamo p", Prestamo.class).getResultList();
         } finally {
             em.close();
         }
     }
 
-    // BUSCAR POR ID
     public Prestamo buscarPorId(int idPrestamo) {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
             return em.find(Prestamo.class, idPrestamo);
         } finally {

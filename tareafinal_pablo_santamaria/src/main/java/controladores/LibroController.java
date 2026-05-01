@@ -9,16 +9,14 @@ import java.util.List;
 
 public class LibroController {
 
-    // INSERTAR LIBRO
     public void insertarLibro(Libro libro) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.persist(libro);
             tx.commit();
-            System.out.println("✔ Libro insertado correctamente");
+            System.out.println("✔ Libro insertado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -27,16 +25,14 @@ public class LibroController {
         }
     }
 
-    // ACTUALIZAR LIBRO
     public void actualizarLibro(Libro libro) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.merge(libro);
             tx.commit();
-            System.out.println("✔ Libro actualizado correctamente");
+            System.out.println("✔ Libro actualizado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -45,20 +41,16 @@ public class LibroController {
         }
     }
 
-    // BORRAR LIBRO
     public void borrarLibro(int idLibro) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
-
             Libro libro = em.find(Libro.class, idLibro);
             if (libro != null) {
                 em.remove(libro);
-                System.out.println("✔ Libro eliminado correctamente");
+                System.out.println("✔ Libro eliminado");
             }
-
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
@@ -68,22 +60,17 @@ public class LibroController {
         }
     }
 
-    // LISTAR LIBROS
     public List<Libro> listarLibros() {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
-            return em.createQuery("SELECT l FROM Libro l", Libro.class)
-                    .getResultList();
+            return em.createQuery("SELECT l FROM Libro l", Libro.class).getResultList();
         } finally {
             em.close();
         }
     }
 
-    // BUSCAR POR ID
     public Libro buscarPorId(int idLibro) {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
             return em.find(Libro.class, idLibro);
         } finally {

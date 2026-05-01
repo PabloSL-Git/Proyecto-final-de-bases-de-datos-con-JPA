@@ -9,11 +9,9 @@ import java.util.List;
 
 public class CredencialController {
 
-    // INSERTAR
     public void insertarCredencial(Credencial credencial) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.persist(credencial);
@@ -27,11 +25,9 @@ public class CredencialController {
         }
     }
 
-    // ACTUALIZAR
     public void actualizarCredencial(Credencial credencial) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.merge(credencial);
@@ -45,20 +41,16 @@ public class CredencialController {
         }
     }
 
-    // BORRAR
     public void borrarCredencial(int idCredencial) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
-
             Credencial credencial = em.find(Credencial.class, idCredencial);
             if (credencial != null) {
                 em.remove(credencial);
                 System.out.println("✔ Credencial eliminada");
             }
-
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
@@ -68,22 +60,17 @@ public class CredencialController {
         }
     }
 
-    // LISTAR
     public List<Credencial> listarCredenciales() {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
-            return em.createQuery("SELECT c FROM Credencial c", Credencial.class)
-                    .getResultList();
+            return em.createQuery("SELECT c FROM Credencial c", Credencial.class).getResultList();
         } finally {
             em.close();
         }
     }
 
-    // BUSCAR POR ID
     public Credencial buscarPorId(int idCredencial) {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
             return em.find(Credencial.class, idCredencial);
         } finally {

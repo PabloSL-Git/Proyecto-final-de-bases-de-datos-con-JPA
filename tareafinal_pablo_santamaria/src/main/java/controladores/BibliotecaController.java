@@ -9,11 +9,9 @@ import java.util.List;
 
 public class BibliotecaController {
 
-    // INSERTAR
     public void insertarBiblioteca(Biblioteca biblioteca) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.persist(biblioteca);
@@ -27,11 +25,9 @@ public class BibliotecaController {
         }
     }
 
-    // ACTUALIZAR
     public void actualizarBiblioteca(Biblioteca biblioteca) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.merge(biblioteca);
@@ -45,20 +41,16 @@ public class BibliotecaController {
         }
     }
 
-    // BORRAR
     public void borrarBiblioteca(int idBiblioteca) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
-
             Biblioteca biblioteca = em.find(Biblioteca.class, idBiblioteca);
             if (biblioteca != null) {
                 em.remove(biblioteca);
                 System.out.println("✔ Biblioteca eliminada");
             }
-
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
@@ -68,22 +60,17 @@ public class BibliotecaController {
         }
     }
 
-    // LISTAR
     public List<Biblioteca> listarBibliotecas() {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
-            return em.createQuery("SELECT b FROM Biblioteca b", Biblioteca.class)
-                    .getResultList();
+            return em.createQuery("SELECT b FROM Biblioteca b", Biblioteca.class).getResultList();
         } finally {
             em.close();
         }
     }
 
-    // BUSCAR POR ID
     public Biblioteca buscarPorId(int idBiblioteca) {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
             return em.find(Biblioteca.class, idBiblioteca);
         } finally {

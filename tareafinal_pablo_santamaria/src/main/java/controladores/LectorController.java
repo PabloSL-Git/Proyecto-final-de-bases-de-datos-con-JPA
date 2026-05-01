@@ -9,11 +9,9 @@ import java.util.List;
 
 public class LectorController {
 
-    // INSERTAR
     public void insertarLector(Lector lector) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.persist(lector);
@@ -27,11 +25,9 @@ public class LectorController {
         }
     }
 
-    // ACTUALIZAR
     public void actualizarLector(Lector lector) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
             em.merge(lector);
@@ -45,20 +41,16 @@ public class LectorController {
         }
     }
 
-    // BORRAR
     public void borrarLector(int idLector) {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
         try {
             tx.begin();
-
             Lector lector = em.find(Lector.class, idLector);
             if (lector != null) {
                 em.remove(lector);
                 System.out.println("✔ Lector eliminado");
             }
-
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
@@ -68,22 +60,17 @@ public class LectorController {
         }
     }
 
-    // LISTAR
     public List<Lector> listarLectores() {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
-            return em.createQuery("SELECT l FROM Lector l", Lector.class)
-                    .getResultList();
+            return em.createQuery("SELECT l FROM Lector l", Lector.class).getResultList();
         } finally {
             em.close();
         }
     }
 
-    // BUSCAR POR ID
     public Lector buscarPorId(int idLector) {
         EntityManager em = JPAUtil.getEntityManager();
-
         try {
             return em.find(Lector.class, idLector);
         } finally {
