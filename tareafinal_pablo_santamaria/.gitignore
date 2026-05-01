@@ -1,0 +1,31 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+
+# IntelliJ / Eclipse / NetBeans
+.idea/
+*.iml
+*.class
+.classpath
+.project
+.settings/
+nbproject/
+
+# Logs
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Variables sensibles (MUY IMPORTANTE)
+config.properties
+application.properties
+
+# Backup files (si luego haces backups locales)
+backup_*/
+
+# Hibernate / JPA cache (opcional)
+*.db
