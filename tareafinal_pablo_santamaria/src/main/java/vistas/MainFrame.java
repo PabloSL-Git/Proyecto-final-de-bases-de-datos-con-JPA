@@ -3,6 +3,8 @@ package vistas;
 import controladores.LibroController;
 import modelos.entidades.Libro;
 import utilidades.BackupManager;
+import utilidades.RestoreManager;
+import java.io.File;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,61 +27,51 @@ public class MainFrame extends JFrame {
 
     private void initComponents() {
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        System.out.println("Cargando MainFrame...");
 
-        // ===== BOTONES =====
+        JPanel panel = new JPanel(new BorderLayout());
+
         JPanel botones = new JPanel();
 
+        // BOTONES
         JButton btnListar = new JButton("Listar Libros");
+        JButton btnInsertar = new JButton("Insertar Libro");
+        JButton btnEliminar = new JButton("Eliminar Libro");
+        JButton btnActualizar = new JButton("Actualizar Libro");
+        JButton btnBackup = new JButton("Backup CSV");
+        JButton btnRestaurar = new JButton("Restaurar Backup");
         JButton btnSalir = new JButton("Salir");
 
         botones.add(btnListar);
+        botones.add(btnInsertar);
+        botones.add(btnEliminar);
+        botones.add(btnActualizar);
+        botones.add(btnBackup);
+        botones.add(btnRestaurar);
         botones.add(btnSalir);
 
         panel.add(botones, BorderLayout.NORTH);
 
-        JButton btnInsertar = new JButton("Insertar Libro");
-        botones.add(btnInsertar);
-
-        JButton btnEliminar = new JButton("Eliminar Libro");
-        botones.add(btnEliminar);
-
-        JButton btnActualizar = new JButton("Actualizar Libro");
-        botones.add(btnActualizar);
-
-        JButton btnBackup = new JButton("Backup CSV");
-        botones.add(btnBackup);
-
-        // ===== AREA DE TEXTO =====
-        textArea = new JTextArea();
+        textArea = new JTextArea("Sistema Biblioteca listo...");
         JScrollPane scroll = new JScrollPane(textArea);
 
         panel.add(scroll, BorderLayout.CENTER);
 
         add(panel);
 
-        // ===== ACCIONES =====
-
+        // ACCIONES
         btnListar.addActionListener(e -> listarLibros());
+        btnSalir.addActionListener(e -> System.exit(0));
 
-        btnSalir.addActionListener(e -> {
-            System.exit(0);
-        });
-
-        btnInsertar.addActionListener(e -> {
-            LibroDialog dialog = new LibroDialog(this);
-            dialog.setVisible(true);
-        });
+        btnInsertar.addActionListener(e -> new LibroDialog(this).setVisible(true));
 
         btnEliminar.addActionListener(e -> eliminarLibro());
 
         btnActualizar.addActionListener(e -> abrirActualizarLibro());
 
-        btnBackup.addActionListener(e -> {
-            BackupManager bm = new BackupManager();
-            bm.crearBackup();
-        });
+        btnBackup.addActionListener(e -> new utilidades.BackupManager().crearBackup());
+
+        btnRestaurar.addActionListener(e -> restaurarBackup());
     }
 
     private void listarLibros() {
@@ -150,6 +142,32 @@ public class MainFrame extends JFrame {
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al actualizar libro");
+            e.printStackTrace();
+        }
+    }
+
+    private void restaurarBackup() {
+
+        try {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+            int result = chooser.showOpenDialog(this);
+
+            if (result == JFileChooser.APPROVE_OPTION) {
+
+                File carpeta = chooser.getSelectedFile();
+
+                RestoreManager rm = new RestoreManager();
+                rm.restaurar(carpeta.getAbsolutePath());
+
+                JOptionPane.showMessageDialog(this, "Restauración completada");
+
+                listarLibros(); // refrescar vista
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al restaurar backup");
             e.printStackTrace();
         }
     }
