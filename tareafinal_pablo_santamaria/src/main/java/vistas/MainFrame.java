@@ -18,7 +18,7 @@ public class MainFrame extends JFrame {
 
     public MainFrame() {
         setTitle("Biblioteca - Gestión JPA");
-        setSize(750, 500);
+        setSize(900, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         initComponents();
