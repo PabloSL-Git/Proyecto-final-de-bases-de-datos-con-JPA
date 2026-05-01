@@ -1,0 +1,7 @@
+id,titulo,anio,estado,id_autor,id_biblioteca
+1,Cien años de soledad,1967,disponible,1,1
+2,El Hobbit,1937,prestado,2,2
+3,1984,1949,disponible,3,3
+4,La casa de los espiritus,1982,disponible,4,4
+5,Rayuela,1963,prestado,5,5
+6,Don Quijote de la Mancha,1605,disponible,6,1

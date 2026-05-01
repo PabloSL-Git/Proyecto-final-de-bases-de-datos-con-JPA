@@ -1,0 +1,6 @@
+id,numero_tarjeta,fecha_emision,id_lector
+1,TARJ001,2024-01-01,1
+2,TARJ002,2024-01-02,2
+3,TARJ003,2024-01-03,3
+4,TARJ004,2024-01-04,4
+5,TARJ005,2024-01-05,5

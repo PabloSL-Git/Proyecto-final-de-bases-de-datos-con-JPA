@@ -1,0 +1,6 @@
+id,nombre,apellido1,apellido2,email,telefono,id_biblioteca
+1,Juan,Perez,Gomez,juan@email.com,123456789,1
+2,Maria,Lopez,Fernandez,maria@email.com,987654321,2
+3,Carlos,Ruiz,Martinez,carlos@email.com,456123789,3
+4,Ana,Torres,Sanchez,ana@email.com,321654987,4
+5,Luis,Gomez,Diaz,luis@email.com,654987321,5
