@@ -41,6 +41,7 @@ public class MainFrame extends JFrame {
         JButton btnBackup = new JButton("Backup CSV");
         JButton btnRestaurar = new JButton("Restaurar Backup");
         JButton btnSalir = new JButton("Salir");
+        
 
         botones.add(btnListar);
         botones.add(btnInsertar);
@@ -61,7 +62,7 @@ public class MainFrame extends JFrame {
 
         // ACCIONES
         btnListar.addActionListener(e -> listarLibros());
-        btnSalir.addActionListener(e -> System.exit(0));
+        btnSalir.addActionListener(e -> salirDelPrograma());
 
         btnInsertar.addActionListener(e -> new LibroDialog(this).setVisible(true));
 
@@ -149,26 +150,84 @@ public class MainFrame extends JFrame {
     private void restaurarBackup() {
 
         try {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            RestoreManager rm = new RestoreManager();
+            
+            // Verificar si hay copias disponibles
+            java.util.List<String> copias = rm.listarTodasLasCopias();
+            
+            if (copias.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No hay copias de seguridad disponibles");
+                return;
+            }
 
-            int result = chooser.showOpenDialog(this);
+            // Mostrar opciones
+            String[] opciones = {
+                "1. Restaurar última copia",
+                "2. Seleccionar copia específica"
+            };
+            
+            int opcion = JOptionPane.showOptionDialog(
+                this,
+                "¿Qué deseas hacer?",
+                "Restaurar Backup",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+            );
 
-            if (result == JFileChooser.APPROVE_OPTION) {
+            String carpetaARestaurar = null;
 
-                File carpeta = chooser.getSelectedFile();
+            if (opcion == 0) {
+                // Restaurar última copia
+                carpetaARestaurar = rm.obtenerUltimaEopia();
+            } else if (opcion == 1) {
+                // Seleccionar copia específica
+                String[] nombresBackup = new String[copias.size()];
+                for (int i = 0; i < copias.size(); i++) {
+                    File f = new File(copias.get(i));
+                    nombresBackup[i] = f.getName();
+                }
+                
+                String seleccion = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Selecciona la copia a restaurar:",
+                    "Seleccionar Backup",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    nombresBackup,
+                    nombresBackup[0]
+                );
+                
+                if (seleccion != null) {
+                    carpetaARestaurar = new File(".").getAbsolutePath() + File.separator + seleccion;
+                }
+            }
 
-                RestoreManager rm = new RestoreManager();
-                rm.restaurar(carpeta.getAbsolutePath());
-
-                JOptionPane.showMessageDialog(this, "Restauración completada");
-
-                listarLibros(); // refrescar vista
+            if (carpetaARestaurar != null) {
+                rm.restaurar(carpetaARestaurar);
+                JOptionPane.showMessageDialog(this, "✔ Restauración completada correctamente");
+                listarLibros();
             }
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al restaurar backup");
             e.printStackTrace();
+        }
+    }
+
+    private void salirDelPrograma() {
+        int respuesta = JOptionPane.showConfirmDialog(
+            this,
+            "¿Deseas salir del programa?",
+            "Salir",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta == JOptionPane.YES_OPTION) {
+            System.exit(0);
         }
     }
 }
