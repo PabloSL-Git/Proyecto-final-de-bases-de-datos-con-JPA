@@ -19,21 +19,18 @@ public class Libro {
     @Column(name = "estado", length = 50)
     private String estado;
 
-    // RELACIÓN: muchos libros → un autor
     @ManyToOne
     @JoinColumn(name = "id_autor")
     private Autor autor;
 
-    // RELACIÓN: muchos libros → una biblioteca
     @ManyToOne
     @JoinColumn(name = "id_biblioteca")
     private Biblioteca biblioteca;
 
-    // Constructor vacío (OBLIGATORIO en JPA)
     public Libro() {}
 
-    // Constructor completo
-    public Libro(int idLibro, String titulo, int anioPublicacion, String estado, Autor autor, Biblioteca biblioteca) {
+    public Libro(int idLibro, String titulo, int anioPublicacion, String estado,
+                 Autor autor, Biblioteca biblioteca) {
         this.idLibro = idLibro;
         this.titulo = titulo;
         this.anioPublicacion = anioPublicacion;
@@ -42,53 +39,21 @@ public class Libro {
         this.biblioteca = biblioteca;
     }
 
-    // Getters y setters
+    public int getIdLibro() { return idLibro; }
+    public void setIdLibro(int idLibro) { this.idLibro = idLibro; }
 
-    public int getIdLibro() {
-        return idLibro;
-    }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public void setIdLibro(int idLibro) {
-        this.idLibro = idLibro;
-    }
+    public int getAnioPublicacion() { return anioPublicacion; }
+    public void setAnioPublicacion(int anioPublicacion) { this.anioPublicacion = anioPublicacion; }
 
-    public String getTitulo() {
-        return titulo;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
+    public Autor getAutor() { return autor; }
+    public void setAutor(Autor autor) { this.autor = autor; }
 
-    public int getAnioPublicacion() {
-        return anioPublicacion;
-    }
-
-    public void setAnioPublicacion(int anioPublicacion) {
-        this.anioPublicacion = anioPublicacion;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public Autor getAutor() {
-        return autor;
-    }
-
-    public void setAutor(Autor autor) {
-        this.autor = autor;
-    }
-
-    public Biblioteca getBiblioteca() {
-        return biblioteca;
-    }
-
-    public void setBiblioteca(Biblioteca biblioteca) {
-        this.biblioteca = biblioteca;
-    }
+    public Biblioteca getBiblioteca() { return biblioteca; }
+    public void setBiblioteca(Biblioteca biblioteca) { this.biblioteca = biblioteca; }
 }

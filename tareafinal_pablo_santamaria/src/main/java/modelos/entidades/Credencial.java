@@ -17,7 +17,6 @@ public class Credencial {
     @Column(name = "fecha_emision")
     private LocalDate fechaEmision;
 
-    // RELACIÓN: una credencial pertenece a un lector
     @OneToOne
     @JoinColumn(name = "id_lector", unique = true)
     private Lector lector;
@@ -31,37 +30,15 @@ public class Credencial {
         this.lector = lector;
     }
 
-    // Getters y setters
+    public int getIdCredencial() { return idCredencial; }
+    public void setIdCredencial(int idCredencial) { this.idCredencial = idCredencial; }
 
-    public int getIdCredencial() {
-        return idCredencial;
-    }
+    public String getNumeroTarjeta() { return numeroTarjeta; }
+    public void setNumeroTarjeta(String numeroTarjeta) { this.numeroTarjeta = numeroTarjeta; }
 
-    public void setIdCredencial(int idCredencial) {
-        this.idCredencial = idCredencial;
-    }
+    public LocalDate getFechaEmision() { return fechaEmision; }
+    public void setFechaEmision(LocalDate fechaEmision) { this.fechaEmision = fechaEmision; }
 
-    public String getNumeroTarjeta() {
-        return numeroTarjeta;
-    }
-
-    public void setNumeroTarjeta(String numeroTarjeta) {
-        this.numeroTarjeta = numeroTarjeta;
-    }
-
-    public LocalDate getFechaEmision() {
-        return fechaEmision;
-    }
-
-    public void setFechaEmision(LocalDate fechaEmision) {
-        this.fechaEmision = fechaEmision;
-    }
-
-    public Lector getLector() {
-        return lector;
-    }
-
-    public void setLector(Lector lector) {
-        this.lector = lector;
-    }
+    public Lector getLector() { return lector; }
+    public void setLector(Lector lector) { this.lector = lector; }
 }

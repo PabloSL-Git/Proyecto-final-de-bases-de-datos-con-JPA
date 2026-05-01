@@ -17,19 +17,18 @@ public class Prestamo {
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
-    // RELACIÓN: muchos préstamos → un lector
     @ManyToOne
     @JoinColumn(name = "id_lector")
     private Lector lector;
 
-    // RELACIÓN: muchos préstamos → un libro
     @ManyToOne
     @JoinColumn(name = "id_libro")
     private Libro libro;
 
     public Prestamo() {}
 
-    public Prestamo(int idPrestamo, LocalDate fechaInicio, LocalDate fechaFin, Lector lector, Libro libro) {
+    public Prestamo(int idPrestamo, LocalDate fechaInicio, LocalDate fechaFin,
+                    Lector lector, Libro libro) {
         this.idPrestamo = idPrestamo;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
@@ -37,45 +36,18 @@ public class Prestamo {
         this.libro = libro;
     }
 
-    // Getters y setters
+    public int getIdPrestamo() { return idPrestamo; }
+    public void setIdPrestamo(int idPrestamo) { this.idPrestamo = idPrestamo; }
 
-    public int getIdPrestamo() {
-        return idPrestamo;
-    }
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
 
-    public void setIdPrestamo(int idPrestamo) {
-        this.idPrestamo = idPrestamo;
-    }
+    public LocalDate getFechaFin() { return fechaFin; }
+    public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
 
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
-    }
+    public Lector getLector() { return lector; }
+    public void setLector(Lector lector) { this.lector = lector; }
 
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public LocalDate getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(LocalDate fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public Lector getLector() {
-        return lector;
-    }
-
-    public void setLector(Lector lector) {
-        this.lector = lector;
-    }
-
-    public Libro getLibro() {
-        return libro;
-    }
-
-    public void setLibro(Libro libro) {
-        this.libro = libro;
-    }
+    public Libro getLibro() { return libro; }
+    public void setLibro(Libro libro) { this.libro = libro; }
 }
