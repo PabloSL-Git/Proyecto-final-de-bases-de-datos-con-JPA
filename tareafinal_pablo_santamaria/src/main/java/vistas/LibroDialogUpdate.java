@@ -18,17 +18,14 @@ public class LibroDialogUpdate extends JDialog {
     public LibroDialogUpdate(Frame parent, Libro libro) {
         super(parent, "Actualizar Libro", true);
         this.libro = libro;
-
         setSize(400, 250);
         setLocationRelativeTo(parent);
-
         initComponents();
         cargarDatos();
     }
 
     private void initComponents() {
-
-        setLayout(new GridLayout(4, 2));
+        setLayout(new GridLayout(4, 2, 5, 5));
 
         add(new JLabel("Título:"));
         txtTitulo = new JTextField();
@@ -44,7 +41,6 @@ public class LibroDialogUpdate extends JDialog {
 
         JButton btnGuardar = new JButton("Guardar");
         JButton btnCancelar = new JButton("Cancelar");
-
         add(btnGuardar);
         add(btnCancelar);
 
@@ -59,18 +55,18 @@ public class LibroDialogUpdate extends JDialog {
     }
 
     private void actualizarLibro() {
-
         try {
-            libro.setTitulo(txtTitulo.getText());
-            libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText()));
-            libro.setEstado(txtEstado.getText());
+            libro.setTitulo(txtTitulo.getText().trim());
+            libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
+            libro.setEstado(txtEstado.getText().trim());
 
             controller.actualizarLibro(libro);
 
             JOptionPane.showMessageDialog(this, "Libro actualizado correctamente");
-
             dispose();
 
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El año debe ser un número entero");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al actualizar libro");
             e.printStackTrace();

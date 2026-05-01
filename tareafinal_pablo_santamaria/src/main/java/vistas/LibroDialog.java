@@ -19,13 +19,11 @@ public class LibroDialog extends JDialog {
         super(parent, "Insertar Libro", true);
         setSize(400, 300);
         setLocationRelativeTo(parent);
-
         initComponents();
     }
 
     private void initComponents() {
-
-        setLayout(new GridLayout(5, 2));
+        setLayout(new GridLayout(5, 2, 5, 5));
 
         add(new JLabel("ID:"));
         txtId = new JTextField();
@@ -45,33 +43,28 @@ public class LibroDialog extends JDialog {
 
         JButton btnGuardar = new JButton("Guardar");
         JButton btnCancelar = new JButton("Cancelar");
-
         add(btnGuardar);
         add(btnCancelar);
 
-        // ACCIONES
-
         btnGuardar.addActionListener(e -> insertarLibro());
-
         btnCancelar.addActionListener(e -> dispose());
     }
 
     private void insertarLibro() {
-
         try {
             Libro libro = new Libro();
-
-            libro.setIdLibro(Integer.parseInt(txtId.getText()));
-            libro.setTitulo(txtTitulo.getText());
-            libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText()));
-            libro.setEstado(txtEstado.getText());
+            libro.setIdLibro(Integer.parseInt(txtId.getText().trim()));
+            libro.setTitulo(txtTitulo.getText().trim());
+            libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
+            libro.setEstado(txtEstado.getText().trim());
 
             controller.insertarLibro(libro);
 
             JOptionPane.showMessageDialog(this, "Libro insertado correctamente");
-
             dispose();
 
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "ID y Año deben ser números enteros");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al insertar libro");
             e.printStackTrace();
