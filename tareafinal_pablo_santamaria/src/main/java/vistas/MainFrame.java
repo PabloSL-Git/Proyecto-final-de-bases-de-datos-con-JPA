@@ -68,9 +68,9 @@ public class MainFrame extends JFrame {
         btnSalir.addActionListener(e -> salirDelPrograma());
     }
 
-    // -------------------------
+
     // LISTAR
-    // -------------------------
+
     private void listarLibros() {
         List<Libro> libros = libroController.listarLibros();
         textArea.setText("");
@@ -87,9 +87,9 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // -------------------------
+
     // ELIMINAR
-    // -------------------------
+
     private void eliminarLibro() {
         try {
             String input = JOptionPane.showInputDialog(this, "Introduce el ID del libro a eliminar:");
@@ -108,9 +108,9 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // -------------------------
+
     // ACTUALIZAR
-    // -------------------------
+
     private void abrirActualizarLibro() {
         try {
             String input = JOptionPane.showInputDialog(this, "Introduce el ID del libro a actualizar:");
@@ -135,9 +135,9 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // -------------------------
+
     // BACKUP
-    // -------------------------
+
     private void crearBackup() {
         try {
             new BackupManager().crearBackup();
@@ -148,9 +148,9 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // -------------------------
+
     // RESTAURAR
-    // -------------------------
+
     private void restaurarBackup() {
         try {
             RestoreManager rm = new RestoreManager();
@@ -215,9 +215,9 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // -------------------------
+
     // SALIR
-    // -------------------------
+
     private void salirDelPrograma() {
         int respuesta = JOptionPane.showConfirmDialog(
             this,
