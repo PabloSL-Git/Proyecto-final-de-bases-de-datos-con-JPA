@@ -20,7 +20,7 @@ public class PrestamoController {
                 em.merge(prestamo.getLibro());
             }
             tx.commit();
-            System.out.println("✔ Préstamo insertado");
+            System.out.println("Préstamo insertado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class PrestamoController {
                 em.merge(prestamo.getLibro());
             }
             tx.commit();
-            System.out.println("✔ Préstamo actualizado");
+            System.out.println("Préstamo actualizado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -61,7 +61,7 @@ public class PrestamoController {
                     em.merge(prestamo.getLibro());
                 }
                 em.remove(prestamo);
-                System.out.println("✔ Préstamo eliminado");
+                System.out.println("Préstamo eliminado");
             }
             tx.commit();
         } catch (Exception e) {

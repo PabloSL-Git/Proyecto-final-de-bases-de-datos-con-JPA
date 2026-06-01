@@ -16,7 +16,7 @@ public class LibroController {
             tx.begin();
             em.persist(libro);
             tx.commit();
-            System.out.println("✔ Libro insertado");
+            System.out.println("Libro insertado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -32,7 +32,7 @@ public class LibroController {
             tx.begin();
             em.merge(libro);
             tx.commit();
-            System.out.println("✔ Libro actualizado");
+            System.out.println("Libro actualizado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -60,7 +60,7 @@ public class LibroController {
                         .setParameter("id", idLibro)
                         .executeUpdate();
                 em.remove(libro);
-                System.out.println("✔ Libro eliminado");
+                System.out.println("Libro eliminado");
             }
             tx.commit();
         } catch (IllegalStateException e) {

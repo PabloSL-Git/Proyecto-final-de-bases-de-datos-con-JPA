@@ -16,7 +16,7 @@ public class BibliotecaController {
             tx.begin();
             em.persist(biblioteca);
             tx.commit();
-            System.out.println("✔ Biblioteca insertada");
+            System.out.println("Biblioteca insertada");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -32,7 +32,7 @@ public class BibliotecaController {
             tx.begin();
             em.merge(biblioteca);
             tx.commit();
-            System.out.println("✔ Biblioteca actualizada");
+            System.out.println("Biblioteca actualizada");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -57,7 +57,7 @@ public class BibliotecaController {
                 if (libros > 0 || lectores > 0) throw new IllegalStateException(
                         "No se puede eliminar: la biblioteca tiene " + libros + " libro(s) y " + lectores + " lector(es) asociado(s).");
                 em.remove(biblioteca);
-                System.out.println("✔ Biblioteca eliminada");
+                System.out.println("Biblioteca eliminada");
             }
             tx.commit();
         } catch (IllegalStateException e) {

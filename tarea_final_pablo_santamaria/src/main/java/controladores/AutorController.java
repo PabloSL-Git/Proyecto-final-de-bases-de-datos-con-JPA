@@ -16,7 +16,7 @@ public class AutorController {
             tx.begin();
             em.persist(autor);
             tx.commit();
-            System.out.println("✔ Autor insertado");
+            System.out.println("Autor insertado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -32,7 +32,7 @@ public class AutorController {
             tx.begin();
             em.merge(autor);
             tx.commit();
-            System.out.println("✔ Autor actualizado");
+            System.out.println("Autor actualizado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -54,7 +54,7 @@ public class AutorController {
                 if (libros > 0) throw new IllegalStateException(
                         "No se puede eliminar: el autor tiene " + libros + " libro(s) asociado(s).");
                 em.remove(autor);
-                System.out.println("✔ Autor eliminado");
+                System.out.println("Autor eliminado");
             }
             tx.commit();
         } catch (IllegalStateException e) {

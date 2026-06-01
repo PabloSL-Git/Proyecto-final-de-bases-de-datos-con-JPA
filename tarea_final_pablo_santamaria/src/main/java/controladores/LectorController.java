@@ -16,7 +16,7 @@ public class LectorController {
             tx.begin();
             em.persist(lector);
             tx.commit();
-            System.out.println("✔ Lector insertado");
+            System.out.println("Lector insertado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -32,7 +32,7 @@ public class LectorController {
             tx.begin();
             em.merge(lector);
             tx.commit();
-            System.out.println("✔ Lector actualizado");
+            System.out.println("Lector actualizado");
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();
@@ -54,7 +54,7 @@ public class LectorController {
                 if (prestamos > 0) throw new IllegalStateException(
                         "No se puede eliminar: el lector tiene " + prestamos + " préstamo(s) asociado(s).");
                 em.remove(lector);
-                System.out.println("✔ Lector eliminado");
+                System.out.println("Lector eliminado");
             }
             tx.commit();
         } catch (IllegalStateException e) {

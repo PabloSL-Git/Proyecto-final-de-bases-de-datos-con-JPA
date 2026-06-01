@@ -45,7 +45,7 @@ public class BackupManager {
             exportarCredenciales(carpeta);
             exportarPrestamos(carpeta);
 
-            System.out.println("✔ Backup creado en carpeta: " + carpeta);
+            System.out.println("Backup creado en carpeta: " + carpeta);
 
         } catch (Exception e) {
             e.printStackTrace();
