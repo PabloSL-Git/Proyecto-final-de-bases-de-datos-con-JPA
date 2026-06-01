@@ -102,6 +102,8 @@ public class MainFrame extends JFrame {
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
+        } catch (IllegalStateException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al eliminar libro");
             e.printStackTrace();
@@ -141,7 +143,7 @@ public class MainFrame extends JFrame {
     private void crearBackup() {
         try {
             new BackupManager().crearBackup();
-            JOptionPane.showMessageDialog(this, "✔ Backup creado correctamente");
+            JOptionPane.showMessageDialog(this, "Backup creado correctamente");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al crear backup");
             e.printStackTrace();
@@ -205,7 +207,7 @@ public class MainFrame extends JFrame {
 
             if (carpetaARestaurar != null) {
                 rm.restaurar(carpetaARestaurar);
-                JOptionPane.showMessageDialog(this, "✔ Restauración completada correctamente");
+                JOptionPane.showMessageDialog(this, "Restauración completada correctamente");
                 listarLibros();
             }
 

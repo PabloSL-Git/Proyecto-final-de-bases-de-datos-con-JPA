@@ -15,6 +15,10 @@ public class PrestamoController {
         try {
             tx.begin();
             em.persist(prestamo);
+            if (prestamo.getLibro() != null) {
+                prestamo.getLibro().setEstado("prestado");
+                em.merge(prestamo.getLibro());
+            }
             tx.commit();
             System.out.println("✔ Préstamo insertado");
         } catch (Exception e) {
@@ -31,6 +35,10 @@ public class PrestamoController {
         try {
             tx.begin();
             em.merge(prestamo);
+            if (prestamo.getLibro() != null && prestamo.getFechaFin() != null) {
+                prestamo.getLibro().setEstado("disponible");
+                em.merge(prestamo.getLibro());
+            }
             tx.commit();
             System.out.println("✔ Préstamo actualizado");
         } catch (Exception e) {
@@ -48,6 +56,10 @@ public class PrestamoController {
             tx.begin();
             Prestamo prestamo = em.find(Prestamo.class, idPrestamo);
             if (prestamo != null) {
+                if (prestamo.getLibro() != null) {
+                    prestamo.getLibro().setEstado("disponible");
+                    em.merge(prestamo.getLibro());
+                }
                 em.remove(prestamo);
                 System.out.println("✔ Préstamo eliminado");
             }

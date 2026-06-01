@@ -48,10 +48,24 @@ public class LibroController {
             tx.begin();
             Libro libro = em.find(Libro.class, idLibro);
             if (libro != null) {
+                long prestamosActivos = (long) em.createQuery(
+                        "SELECT COUNT(p) FROM Prestamo p WHERE p.libro.idLibro = :id AND p.fechaFin IS NULL")
+                        .setParameter("id", idLibro)
+                        .getSingleResult();
+                if (prestamosActivos > 0) {
+                    throw new IllegalStateException(
+                            "No se puede eliminar: el libro tiene " + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
+                }
+                em.createQuery("DELETE FROM Prestamo p WHERE p.libro.idLibro = :id")
+                        .setParameter("id", idLibro)
+                        .executeUpdate();
                 em.remove(libro);
                 System.out.println("✔ Libro eliminado");
             }
             tx.commit();
+        } catch (IllegalStateException e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();

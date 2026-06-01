@@ -1,6 +1,13 @@
 create database if not exists Biblioteca_Pablo;
 use Biblioteca_Pablo;
 
+drop table if exists Prestamo;
+drop table if exists Credencial;
+drop table if exists Libro;
+drop table if exists Lector;
+drop table if exists Autor;
+drop table if exists Biblioteca;
+
 -- TABLA BIBLIOTECA
 
 create table Biblioteca
@@ -13,7 +20,6 @@ create table Biblioteca
 
 -- TABLA AUTOR
 
-drop table if exists Autor;
 create table Autor
 (
  id_autor int,
@@ -31,7 +37,7 @@ create table Libro
  id_libro int,
  titulo varchar(150) not null,
  anio_publicacion int,
- estado varchar(50),
+ estado enum('disponible', 'prestado') not null default 'disponible',
  id_autor int,
  id_biblioteca int,
  constraint pk_libro primary key (id_libro),
@@ -57,7 +63,7 @@ create table Lector
     on delete no action on update cascade
 );
 
--- TABLA CREDENCIAL 
+-- TABLA CREDENCIAL
 
 create table Credencial
 (
@@ -89,7 +95,7 @@ create table Prestamo
 );
 
 
--- INSERT 
+-- INSERT
 
 insert into Biblioteca values
 (1, 'Biblioteca Central', 'Calle Mayor 1'),
@@ -106,21 +112,20 @@ insert into Autor values
 (5, 'Julio', 'Cortazar', null, 'Argentina'),
 (6, 'Miguel', 'de Cervantes', 'Saavedra', 'España');
 
-
 insert into Libro values
-(1, 'Cien años de soledad', 1967, 'disponible', 1, 1),
-(2, 'El Hobbit', 1937, 'prestado', 2, 2),
-(3, '1984', 1949, 'disponible', 3, 3),
-(4, 'La casa de los espiritus', 1982, 'disponible', 4, 4),
-(5, 'Rayuela', 1963, 'prestado', 5, 5),
-(6, 'Don Quijote de la Mancha', 1605, 'disponible', 6, 1);
+(1, 'Cien años de soledad',    1967, 'disponible', 1, 1),
+(2, 'El Hobbit',               1937, 'prestado',   2, 2),
+(3, '1984',                    1949, 'disponible', 3, 3),
+(4, 'La casa de los espiritus',1982, 'disponible', 4, 4),
+(5, 'Rayuela',                 1963, 'prestado',   5, 5),
+(6, 'Don Quijote de la Mancha',1605, 'disponible', 6, 1);
 
 insert into Lector values
-(1, 'Juan', 'Perez', 'Gomez', 'juan@email.com', '123456789', 1),
-(2, 'Maria', 'Lopez', 'Fernandez', 'maria@email.com', '987654321', 2),
-(3, 'Carlos', 'Ruiz', 'Martinez', 'carlos@email.com', '456123789', 3),
-(4, 'Ana', 'Torres', 'Sanchez', 'ana@email.com', '321654987', 4),
-(5, 'Luis', 'Gomez', 'Diaz', 'luis@email.com', '654987321', 5);
+(1, 'Juan',   'Perez',  'Gomez',     'juan@email.com',   '123456789', 1),
+(2, 'Maria',  'Lopez',  'Fernandez', 'maria@email.com',  '987654321', 2),
+(3, 'Carlos', 'Ruiz',   'Martinez',  'carlos@email.com', '456123789', 3),
+(4, 'Ana',    'Torres', 'Sanchez',   'ana@email.com',    '321654987', 4),
+(5, 'Luis',   'Gomez',  'Diaz',      'luis@email.com',   '654987321', 5);
 
 insert into Credencial values
 (1, 'TARJ001', '2024-01-01', 1),
@@ -130,8 +135,8 @@ insert into Credencial values
 (5, 'TARJ005', '2024-01-05', 5);
 
 insert into Prestamo values
-(1, '2025-01-10', '2025-01-20', 1, 2),
-(2, '2025-01-11', '2025-01-21', 2, 1),
-(3, '2025-01-12', '2025-01-22', 3, 5),
-(4, '2025-01-13', '2025-01-23', 4, 3),
-(5, '2025-01-14', '2025-01-24', 5, 4);
+(1, '2026-05-01', null,         1, 2),  -- El Hobbit: préstamo activo
+(2, '2026-05-15', null,         2, 5),  -- Rayuela: préstamo activo
+(3, '2026-01-10', '2026-01-25', 3, 1),  -- Cien años de soledad: devuelto
+(4, '2026-02-01', '2026-02-15', 4, 3),  -- 1984: devuelto
+(5, '2026-03-01', '2026-03-15', 5, 4);  -- La casa de los espíritus: devuelto

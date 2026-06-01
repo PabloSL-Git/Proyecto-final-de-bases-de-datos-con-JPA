@@ -1,6 +1,5 @@
 package utilidades;
 
-import controladores.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import modelos.entidades.*;
@@ -14,14 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class RestoreManager {
-
-    private AutorController autorController = new AutorController();
-    private LibroController libroController = new LibroController();
-    private BibliotecaController bibliotecaController = new BibliotecaController();
-    private LectorController lectorController = new LectorController();
-    private CredencialController credencialController = new CredencialController();
-    private PrestamoController prestamoController = new PrestamoController();
-
 
     // OBTENER ÚLTIMA COPIA
 
@@ -56,21 +47,28 @@ public class RestoreManager {
     // RESTAURAR
 
     public void restaurar(String carpeta) {
+        borrarTodo();
+
+        EntityManager em = JPAUtil.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
         try {
-            borrarTodo();
+            tx.begin();
 
             // Orden importante: primero entidades sin dependencias
-            restaurarBibliotecas(carpeta + "/bibliotecas.csv");
-            restaurarAutores(carpeta + "/autores.csv");
-            restaurarLibros(carpeta + "/libros.csv");
-            restaurarLectores(carpeta + "/lectores.csv");
-            restaurarCredenciales(carpeta + "/credenciales.csv");
-            restaurarPrestamos(carpeta + "/prestamos.csv");
+            restaurarBibliotecas(em, carpeta + "/bibliotecas.csv");
+            restaurarAutores(em, carpeta + "/autores.csv");
+            restaurarLibros(em, carpeta + "/libros.csv");
+            restaurarLectores(em, carpeta + "/lectores.csv");
+            restaurarCredenciales(em, carpeta + "/credenciales.csv");
+            restaurarPrestamos(em, carpeta + "/prestamos.csv");
 
+            tx.commit();
             System.out.println(" Restauración completada");
-
         } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
             e.printStackTrace();
+        } finally {
+            em.close();
         }
     }
 
@@ -101,7 +99,7 @@ public class RestoreManager {
 
     // BIBLIOTECAS
 
-    private void restaurarBibliotecas(String file) throws Exception {
+    private void restaurarBibliotecas(EntityManager em, String file) throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine(); // cabecera
             String line;
@@ -111,7 +109,7 @@ public class RestoreManager {
                 b.setIdBiblioteca(Integer.parseInt(data[0]));
                 b.setNombre(data[1]);
                 b.setDireccion(data.length > 2 ? data[2] : "");
-                bibliotecaController.insertarBiblioteca(b);
+                em.persist(b);
             }
         }
     }
@@ -119,7 +117,7 @@ public class RestoreManager {
 
     // AUTORES
 
-    private void restaurarAutores(String file) throws Exception {
+    private void restaurarAutores(EntityManager em, String file) throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine(); // cabecera
             String line;
@@ -131,7 +129,7 @@ public class RestoreManager {
                 a.setApellido1(data[2]);
                 a.setApellido2(data[3]);
                 a.setNacionalidad(data[4]);
-                autorController.insertarAutor(a);
+                em.persist(a);
             }
         }
     }
@@ -139,7 +137,7 @@ public class RestoreManager {
 
     // LIBROS (con autor y biblioteca)
 
-    private void restaurarLibros(String file) throws Exception {
+    private void restaurarLibros(EntityManager em, String file) throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine(); // cabecera
             String line;
@@ -152,16 +150,14 @@ public class RestoreManager {
                 l.setEstado(data[3]);
 
                 if (data.length > 4 && !data[4].isEmpty() && !data[4].equals("0")) {
-                    Autor a = autorController.buscarPorId(Integer.parseInt(data[4]));
-                    l.setAutor(a);
+                    l.setAutor(em.find(Autor.class, Integer.parseInt(data[4])));
                 }
 
                 if (data.length > 5 && !data[5].isEmpty() && !data[5].equals("0")) {
-                    Biblioteca b = bibliotecaController.buscarPorId(Integer.parseInt(data[5]));
-                    l.setBiblioteca(b);
+                    l.setBiblioteca(em.find(Biblioteca.class, Integer.parseInt(data[5])));
                 }
 
-                libroController.insertarLibro(l);
+                em.persist(l);
             }
         }
     }
@@ -169,7 +165,7 @@ public class RestoreManager {
 
     // LECTORES
 
-    private void restaurarLectores(String file) throws Exception {
+    private void restaurarLectores(EntityManager em, String file) throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine(); // cabecera
             String line;
@@ -184,11 +180,10 @@ public class RestoreManager {
                 l.setTelefono(data[5]);
 
                 if (data.length > 6 && !data[6].isEmpty() && !data[6].equals("0")) {
-                    Biblioteca b = bibliotecaController.buscarPorId(Integer.parseInt(data[6]));
-                    l.setBiblioteca(b);
+                    l.setBiblioteca(em.find(Biblioteca.class, Integer.parseInt(data[6])));
                 }
 
-                lectorController.insertarLector(l);
+                em.persist(l);
             }
         }
     }
@@ -196,7 +191,7 @@ public class RestoreManager {
 
     // CREDENCIALES
 
-    private void restaurarCredenciales(String file) throws Exception {
+    private void restaurarCredenciales(EntityManager em, String file) throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine(); // cabecera
             String line;
@@ -211,11 +206,10 @@ public class RestoreManager {
                 }
 
                 if (data.length > 3 && !data[3].isEmpty() && !data[3].equals("0")) {
-                    Lector l = lectorController.buscarPorId(Integer.parseInt(data[3]));
-                    c.setLector(l);
+                    c.setLector(em.find(Lector.class, Integer.parseInt(data[3])));
                 }
 
-                credencialController.insertarCredencial(c);
+                em.persist(c);
             }
         }
     }
@@ -223,7 +217,7 @@ public class RestoreManager {
 
     // PRÉSTAMOS
 
-    private void restaurarPrestamos(String file) throws Exception {
+    private void restaurarPrestamos(EntityManager em, String file) throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine(); // cabecera
             String line;
@@ -238,17 +232,16 @@ public class RestoreManager {
                 }
 
                 if (data.length > 3 && !data[3].isEmpty() && !data[3].equals("0")) {
-                    Lector l = lectorController.buscarPorId(Integer.parseInt(data[3]));
-                    p.setLector(l);
+                    p.setLector(em.find(Lector.class, Integer.parseInt(data[3])));
                 }
 
                 if (data.length > 4 && !data[4].isEmpty() && !data[4].equals("0")) {
-                    Libro lib = libroController.buscarPorId(Integer.parseInt(data[4]));
-                    p.setLibro(lib);
+                    p.setLibro(em.find(Libro.class, Integer.parseInt(data[4])));
                 }
 
-                prestamoController.insertarPrestamo(p);
+                em.persist(p);
             }
         }
     }
 }
+
