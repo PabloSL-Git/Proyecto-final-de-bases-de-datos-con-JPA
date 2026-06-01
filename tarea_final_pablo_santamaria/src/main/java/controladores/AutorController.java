@@ -48,10 +48,18 @@ public class AutorController {
             tx.begin();
             Autor autor = em.find(Autor.class, idAutor);
             if (autor != null) {
+                long libros = (long) em.createQuery(
+                        "SELECT COUNT(l) FROM Libro l WHERE l.autor.idAutor = :id")
+                        .setParameter("id", idAutor).getSingleResult();
+                if (libros > 0) throw new IllegalStateException(
+                        "No se puede eliminar: el autor tiene " + libros + " libro(s) asociado(s).");
                 em.remove(autor);
                 System.out.println("✔ Autor eliminado");
             }
             tx.commit();
+        } catch (IllegalStateException e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();

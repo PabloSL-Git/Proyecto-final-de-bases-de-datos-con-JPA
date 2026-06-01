@@ -1,29 +1,44 @@
 package vistas;
 
+import controladores.AutorController;
+import controladores.BibliotecaController;
 import controladores.LibroController;
+import modelos.entidades.Autor;
+import modelos.entidades.Biblioteca;
 import modelos.entidades.Libro;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class LibroDialog extends JDialog {
 
     private JTextField txtId;
     private JTextField txtTitulo;
     private JTextField txtAnio;
-    private JTextField txtEstado;
+    private JComboBox<String> cmbEstado;
+    private JComboBox<String> cmbAutor;
+    private JComboBox<String> cmbBiblioteca;
 
-    private LibroController controller = new LibroController();
+    private final LibroController libroController = new LibroController();
+    private final AutorController autorController = new AutorController();
+    private final BibliotecaController bibliotecaController = new BibliotecaController();
+
+    private List<Autor> autores;
+    private List<Biblioteca> bibliotecas;
 
     public LibroDialog(Frame parent) {
         super(parent, "Insertar Libro", true);
-        setSize(400, 300);
+        setSize(420, 320);
         setLocationRelativeTo(parent);
         initComponents();
     }
 
     private void initComponents() {
-        setLayout(new GridLayout(5, 2, 5, 5));
+        autores = autorController.listarAutores();
+        bibliotecas = bibliotecaController.listarBibliotecas();
+
+        setLayout(new GridLayout(7, 2, 5, 5));
 
         add(new JLabel("ID:"));
         txtId = new JTextField();
@@ -38,28 +53,50 @@ public class LibroDialog extends JDialog {
         add(txtAnio);
 
         add(new JLabel("Estado:"));
-        txtEstado = new JTextField();
-        add(txtEstado);
+        cmbEstado = new JComboBox<>(new String[]{"disponible", "prestado"});
+        add(cmbEstado);
+
+        add(new JLabel("Autor:"));
+        String[] opAutores = autores.stream()
+                .map(a -> a.getIdAutor() + " - " + a.getNombre() + " " + a.getApellido1())
+                .toArray(String[]::new);
+        cmbAutor = new JComboBox<>(opAutores);
+        add(cmbAutor);
+
+        add(new JLabel("Biblioteca:"));
+        String[] opBibliotecas = bibliotecas.stream()
+                .map(b -> b.getIdBiblioteca() + " - " + b.getNombre())
+                .toArray(String[]::new);
+        cmbBiblioteca = new JComboBox<>(opBibliotecas);
+        add(cmbBiblioteca);
 
         JButton btnGuardar = new JButton("Guardar");
         JButton btnCancelar = new JButton("Cancelar");
         add(btnGuardar);
         add(btnCancelar);
 
-        btnGuardar.addActionListener(e -> insertarLibro());
+        btnGuardar.addActionListener(e -> insertar());
         btnCancelar.addActionListener(e -> dispose());
     }
 
-    private void insertarLibro() {
+    private void insertar() {
         try {
             Libro libro = new Libro();
             libro.setIdLibro(Integer.parseInt(txtId.getText().trim()));
             libro.setTitulo(txtTitulo.getText().trim());
             libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
-            libro.setEstado(txtEstado.getText().trim());
+            libro.setEstado((String) cmbEstado.getSelectedItem());
 
-            controller.insertarLibro(libro);
+            if (cmbAutor.getSelectedItem() != null && !autores.isEmpty()) {
+                int idAutor = Integer.parseInt(((String) cmbAutor.getSelectedItem()).split(" - ")[0]);
+                libro.setAutor(autorController.buscarPorId(idAutor));
+            }
+            if (cmbBiblioteca.getSelectedItem() != null && !bibliotecas.isEmpty()) {
+                int idBib = Integer.parseInt(((String) cmbBiblioteca.getSelectedItem()).split(" - ")[0]);
+                libro.setBiblioteca(bibliotecaController.buscarPorId(idBib));
+            }
 
+            libroController.insertarLibro(libro);
             JOptionPane.showMessageDialog(this, "Libro insertado correctamente");
             dispose();
 

@@ -1,7 +1,5 @@
 package vistas;
 
-import controladores.LibroController;
-import modelos.entidades.Libro;
 import utilidades.BackupManager;
 import utilidades.JPAUtil;
 import utilidades.RestoreManager;
@@ -13,147 +11,74 @@ import java.util.List;
 
 public class MainFrame extends JFrame {
 
-    private LibroController libroController = new LibroController();
-    private JTextArea textArea;
-
     public MainFrame() {
         setTitle("Biblioteca - Gestión JPA");
-        setSize(900, 500);
+        setSize(500, 420);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         initComponents();
     }
 
     private void initComponents() {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        // Panel de botones
-        JPanel botones = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel titulo = new JLabel("Sistema de Gestión de Biblioteca", SwingConstants.CENTER);
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 16));
+        panel.add(titulo, BorderLayout.NORTH);
 
-        JButton btnListar    = new JButton("Listar Libros");
-        JButton btnInsertar  = new JButton("Insertar Libro");
-        JButton btnEliminar  = new JButton("Eliminar Libro");
-        JButton btnActualizar = new JButton("Actualizar Libro");
-        JButton btnBackup    = new JButton("Crear Backup");
-        JButton btnRestaurar = new JButton("Restaurar Backup");
-        JButton btnSalir     = new JButton("Salir");
+        JPanel grid = new JPanel(new GridLayout(4, 2, 10, 10));
 
-        botones.add(btnListar);
-        botones.add(btnInsertar);
-        botones.add(btnEliminar);
-        botones.add(btnActualizar);
-        botones.add(btnBackup);
-        botones.add(btnRestaurar);
-        botones.add(btnSalir);
+        JButton btnLibros       = new JButton("Gestionar Libros");
+        JButton btnAutores      = new JButton("Gestionar Autores");
+        JButton btnBibliotecas  = new JButton("Gestionar Bibliotecas");
+        JButton btnLectores     = new JButton("Gestionar Lectores");
+        JButton btnCredenciales = new JButton("Gestionar Credenciales");
+        JButton btnPrestamos    = new JButton("Gestionar Préstamos");
+        JButton btnBackup       = new JButton("Backup / Restaurar");
+        JButton btnSalir        = new JButton("Salir");
 
-        panel.add(botones, BorderLayout.NORTH);
+        grid.add(btnLibros);
+        grid.add(btnAutores);
+        grid.add(btnBibliotecas);
+        grid.add(btnLectores);
+        grid.add(btnCredenciales);
+        grid.add(btnPrestamos);
+        grid.add(btnBackup);
+        grid.add(btnSalir);
 
-        textArea = new JTextArea("Sistema Biblioteca listo...\n");
-        textArea.setEditable(false);
-        JScrollPane scroll = new JScrollPane(textArea);
-        panel.add(scroll, BorderLayout.CENTER);
-
+        panel.add(grid, BorderLayout.CENTER);
         add(panel);
 
-        // Acciones
-        btnListar.addActionListener(e -> listarLibros());
-        btnInsertar.addActionListener(e -> {
-            new LibroDialog(this).setVisible(true);
-            listarLibros();
-        });
-        btnEliminar.addActionListener(e -> eliminarLibro());
-        btnActualizar.addActionListener(e -> abrirActualizarLibro());
-        btnBackup.addActionListener(e -> crearBackup());
-        btnRestaurar.addActionListener(e -> restaurarBackup());
-        btnSalir.addActionListener(e -> salirDelPrograma());
+        btnLibros.addActionListener(e -> new LibroFrame().setVisible(true));
+        btnAutores.addActionListener(e -> new AutorFrame().setVisible(true));
+        btnBibliotecas.addActionListener(e -> new BibliotecaFrame().setVisible(true));
+        btnLectores.addActionListener(e -> new LectorFrame().setVisible(true));
+        btnCredenciales.addActionListener(e -> new CredencialFrame().setVisible(true));
+        btnPrestamos.addActionListener(e -> new PrestamoFrame().setVisible(true));
+        btnBackup.addActionListener(e -> abrirBackup());
+        btnSalir.addActionListener(e -> salir());
     }
 
+    private void abrirBackup() {
+        String[] opciones = {"Crear Backup", "Restaurar Backup"};
+        int op = JOptionPane.showOptionDialog(this, "¿Qué deseas hacer?", "Backup",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
 
-    // LISTAR
-
-    private void listarLibros() {
-        List<Libro> libros = libroController.listarLibros();
-        textArea.setText("");
-        if (libros.isEmpty()) {
-            textArea.append("No hay libros registrados.\n");
-            return;
-        }
-        for (Libro l : libros) {
-            textArea.append(
-                "ID: " + l.getIdLibro() +
-                " | Título: " + l.getTitulo() +
-                " | Año: " + l.getAnioPublicacion() +
-                " | Estado: " + l.getEstado() + "\n");
-        }
-    }
-
-
-    // ELIMINAR
-
-    private void eliminarLibro() {
-        try {
-            String input = JOptionPane.showInputDialog(this, "Introduce el ID del libro a eliminar:");
-            if (input == null || input.isBlank()) return;
-
-            int id = Integer.parseInt(input.trim());
-            libroController.borrarLibro(id);
-            JOptionPane.showMessageDialog(this, "Libro eliminado correctamente");
-            listarLibros();
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (IllegalStateException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al eliminar libro");
-            e.printStackTrace();
-        }
-    }
-
-
-    // ACTUALIZAR
-
-    private void abrirActualizarLibro() {
-        try {
-            String input = JOptionPane.showInputDialog(this, "Introduce el ID del libro a actualizar:");
-            if (input == null || input.isBlank()) return;
-
-            int id = Integer.parseInt(input.trim());
-            Libro libro = libroController.buscarPorId(id);
-
-            if (libro == null) {
-                JOptionPane.showMessageDialog(this, "Libro no encontrado");
-                return;
+        if (op == 0) {
+            try {
+                new BackupManager().crearBackup();
+                JOptionPane.showMessageDialog(this, "Backup creado correctamente");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al crear backup");
+                e.printStackTrace();
             }
-
-            new LibroDialogUpdate(this, libro).setVisible(true);
-            listarLibros();
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al abrir actualización");
-            e.printStackTrace();
+        } else if (op == 1) {
+            restaurar();
         }
     }
 
-
-    // BACKUP
-
-    private void crearBackup() {
-        try {
-            new BackupManager().crearBackup();
-            JOptionPane.showMessageDialog(this, "Backup creado correctamente");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al crear backup");
-            e.printStackTrace();
-        }
-    }
-
-
-    // RESTAURAR
-
-    private void restaurarBackup() {
+    private void restaurar() {
         try {
             RestoreManager rm = new RestoreManager();
             List<String> copias = rm.listarTodasLasCopias();
@@ -163,74 +88,39 @@ public class MainFrame extends JFrame {
                 return;
             }
 
-            String[] opciones = {
-                "Restaurar última copia",
-                "Seleccionar copia específica"
-            };
+            String[] opciones = {"Restaurar última copia", "Seleccionar copia específica"};
+            int op = JOptionPane.showOptionDialog(this, "¿Qué deseas restaurar?", "Restaurar Backup",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
 
-            int opcion = JOptionPane.showOptionDialog(
-                this,
-                "¿Qué deseas hacer?",
-                "Restaurar Backup",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                opciones,
-                opciones[0]
-            );
-
-            String carpetaARestaurar = null;
-
-            if (opcion == 0) {
-                carpetaARestaurar = rm.obtenerUltimaCopia();  // corregido: sin la E
-
-            } else if (opcion == 1) {
-                String[] nombresBackup = new String[copias.size()];
-                for (int i = 0; i < copias.size(); i++) {
-                    nombresBackup[i] = new File(copias.get(i)).getName();
-                }
-
-                String seleccion = (String) JOptionPane.showInputDialog(
-                    this,
-                    "Selecciona la copia a restaurar:",
-                    "Seleccionar Backup",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    nombresBackup,
-                    nombresBackup[0]
-                );
-
-                if (seleccion != null) {
-                    carpetaARestaurar = new File(".").getAbsolutePath() + File.separator + seleccion;
+            String carpeta = null;
+            if (op == 0) {
+                carpeta = rm.obtenerUltimaCopia();
+            } else if (op == 1) {
+                String[] nombres = copias.stream()
+                        .map(c -> new File(c).getName())
+                        .toArray(String[]::new);
+                String sel = (String) JOptionPane.showInputDialog(this, "Selecciona la copia:",
+                        "Seleccionar Backup", JOptionPane.QUESTION_MESSAGE, null, nombres, nombres[0]);
+                if (sel != null) {
+                    carpeta = new File(".").getAbsolutePath() + File.separator + sel;
                 }
             }
 
-            if (carpetaARestaurar != null) {
-                rm.restaurar(carpetaARestaurar);
+            if (carpeta != null) {
+                rm.restaurar(carpeta);
                 JOptionPane.showMessageDialog(this, "Restauración completada correctamente");
-                listarLibros();
             }
-
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al restaurar backup");
             e.printStackTrace();
         }
     }
 
-
-    // SALIR
-
-    private void salirDelPrograma() {
-        int respuesta = JOptionPane.showConfirmDialog(
-            this,
-            "¿Deseas salir del programa?",
-            "Salir",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (respuesta == JOptionPane.YES_OPTION) {
-            JPAUtil.close(); // cerrar EntityManagerFactory correctamente
+    private void salir() {
+        int r = JOptionPane.showConfirmDialog(this, "¿Deseas salir del programa?", "Salir",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (r == JOptionPane.YES_OPTION) {
+            JPAUtil.close();
             System.exit(0);
         }
     }
