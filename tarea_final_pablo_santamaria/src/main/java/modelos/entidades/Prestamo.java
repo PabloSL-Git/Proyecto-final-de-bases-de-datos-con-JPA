@@ -14,13 +14,17 @@ public class Prestamo {
     @Column(name = "fecha_inicio", nullable = false)
     private LocalDate fechaInicio;
 
+    // fecha_fin es null mientras el préstamo está activo
+    // Cuando el lector devuelve el libro, se rellena con la fecha de devolución
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
+    // Un préstamo pertenece a un lector (N:1)
     @ManyToOne
     @JoinColumn(name = "id_lector")
     private Lector lector;
 
+    // Un préstamo es de un libro concreto (N:1)
     @ManyToOne
     @JoinColumn(name = "id_libro")
     private Libro libro;

@@ -30,10 +30,10 @@ public class CredencialFrame extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton btnListar    = new JButton("Listar");
-        JButton btnInsertar  = new JButton("Insertar");
+        JButton btnListar     = new JButton("Listar");
+        JButton btnInsertar   = new JButton("Insertar");
         JButton btnActualizar = new JButton("Actualizar");
-        JButton btnEliminar  = new JButton("Eliminar");
+        JButton btnEliminar   = new JButton("Eliminar");
 
         botones.add(btnListar);
         botones.add(btnInsertar);
@@ -55,13 +55,18 @@ public class CredencialFrame extends JFrame {
     private void listar() {
         List<Credencial> credenciales = controller.listarCredenciales();
         textArea.setText("");
-        if (credenciales.isEmpty()) { textArea.append("No hay credenciales registradas.\n"); return; }
+        if (credenciales.isEmpty()) {
+            textArea.append("No hay credenciales registradas.\n");
+            return;
+        }
         for (Credencial c : credenciales) {
-            String lector = c.getLector() != null
-                    ? c.getLector().getNombre() + " " + c.getLector().getApellido1() : "-";
+            String fechaEmision = (c.getFechaEmision() != null) ? c.getFechaEmision().toString() : "-";
+            String lector = (c.getLector() != null)
+                    ? c.getLector().getNombre() + " " + c.getLector().getApellido1()
+                    : "-";
             textArea.append("ID: " + c.getIdCredencial()
                     + " | Tarjeta: " + c.getNumeroTarjeta()
-                    + " | Emisión: " + (c.getFechaEmision() != null ? c.getFechaEmision() : "-")
+                    + " | Emisión: " + fechaEmision
                     + " | Lector: " + lector + "\n");
         }
     }
@@ -72,36 +77,46 @@ public class CredencialFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "No hay lectores disponibles. Inserta uno primero.");
             return;
         }
-        JTextField txtId     = new JTextField();
-        JTextField txtTarj   = new JTextField();
-        JTextField txtFecha  = new JTextField(LocalDate.now().toString());
-        String[] opLect = lectores.stream()
-                .map(l -> l.getIdLector() + " - " + l.getNombre() + " " + l.getApellido1())
-                .toArray(String[]::new);
-        JComboBox<String> cmbLect = new JComboBox<>(opLect);
+        // Construimos las opciones del desplegable en formato "id - nombre apellido"
+        String[] opcionesLector = new String[lectores.size()];
+        for (int i = 0; i < lectores.size(); i++) {
+            Lector l = lectores.get(i);
+            opcionesLector[i] = l.getIdLector() + " - " + l.getNombre() + " " + l.getApellido1();
+        }
+
+        JTextField txtId    = new JTextField();
+        JTextField txtTarj  = new JTextField();
+        // Ponemos la fecha de hoy como valor por defecto
+        JTextField txtFecha = new JTextField(LocalDate.now().toString());
+        JComboBox<String> cmbLector = new JComboBox<>(opcionesLector);
 
         JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-        panel.add(new JLabel("ID:")); panel.add(txtId);
-        panel.add(new JLabel("Número de tarjeta:")); panel.add(txtTarj);
+        panel.add(new JLabel("ID:"));                        panel.add(txtId);
+        panel.add(new JLabel("Número de tarjeta:"));         panel.add(txtTarj);
         panel.add(new JLabel("Fecha emisión (yyyy-mm-dd):")); panel.add(txtFecha);
-        panel.add(new JLabel("Lector:")); panel.add(cmbLect);
+        panel.add(new JLabel("Lector:"));                    panel.add(cmbLector);
 
-        int res = JOptionPane.showConfirmDialog(this, panel, "Insertar Credencial", JOptionPane.OK_CANCEL_OPTION);
-        if (res != JOptionPane.OK_OPTION) return;
+        int resultado = JOptionPane.showConfirmDialog(this, panel, "Insertar Credencial", JOptionPane.OK_CANCEL_OPTION);
+        if (resultado != JOptionPane.OK_OPTION) {
+            return;
+        }
         try {
-            int idLect = Integer.parseInt(((String) cmbLect.getSelectedItem()).split(" - ")[0]);
+            String seleccion = (String) cmbLector.getSelectedItem();
+            int idLector = Integer.parseInt(seleccion.split(" - ")[0]);
+
             Credencial c = new Credencial();
             c.setIdCredencial(Integer.parseInt(txtId.getText().trim()));
             c.setNumeroTarjeta(txtTarj.getText().trim());
             c.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
-            c.setLector(lectorController.buscarPorId(idLect));
+            c.setLector(lectorController.buscarPorId(idLector));
+
             controller.insertarCredencial(c);
             JOptionPane.showMessageDialog(this, "Credencial insertada correctamente");
             listar();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Formato de fecha inválido (usa yyyy-mm-dd)");
+            JOptionPane.showMessageDialog(this, "Formato de fecha inválido. Usa: yyyy-mm-dd");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al insertar credencial");
             ex.printStackTrace();
@@ -110,31 +125,38 @@ public class CredencialFrame extends JFrame {
 
     private void actualizar() {
         String input = JOptionPane.showInputDialog(this, "ID de la credencial a actualizar:");
-        if (input == null || input.isBlank()) return;
+        if (input == null || input.isBlank()) {
+            return;
+        }
         try {
             int id = Integer.parseInt(input.trim());
             Credencial c = controller.buscarPorId(id);
-            if (c == null) { JOptionPane.showMessageDialog(this, "Credencial no encontrada"); return; }
-
+            if (c == null) {
+                JOptionPane.showMessageDialog(this, "Credencial no encontrada");
+                return;
+            }
             JTextField txtTarj  = new JTextField(c.getNumeroTarjeta());
             JTextField txtFecha = new JTextField(c.getFechaEmision() != null ? c.getFechaEmision().toString() : "");
 
             JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5));
-            panel.add(new JLabel("Número de tarjeta:")); panel.add(txtTarj);
+            panel.add(new JLabel("Número de tarjeta:"));          panel.add(txtTarj);
             panel.add(new JLabel("Fecha emisión (yyyy-mm-dd):")); panel.add(txtFecha);
 
-            int res = JOptionPane.showConfirmDialog(this, panel, "Actualizar Credencial", JOptionPane.OK_CANCEL_OPTION);
-            if (res != JOptionPane.OK_OPTION) return;
-
+            int resultado = JOptionPane.showConfirmDialog(this, panel, "Actualizar Credencial", JOptionPane.OK_CANCEL_OPTION);
+            if (resultado != JOptionPane.OK_OPTION) {
+                return;
+            }
             c.setNumeroTarjeta(txtTarj.getText().trim());
-            if (!txtFecha.getText().isBlank()) c.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
+            if (!txtFecha.getText().isBlank()) {
+                c.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
+            }
             controller.actualizarCredencial(c);
             JOptionPane.showMessageDialog(this, "Credencial actualizada correctamente");
             listar();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Formato de fecha inválido (usa yyyy-mm-dd)");
+            JOptionPane.showMessageDialog(this, "Formato de fecha inválido. Usa: yyyy-mm-dd");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al actualizar credencial");
             ex.printStackTrace();
@@ -143,7 +165,9 @@ public class CredencialFrame extends JFrame {
 
     private void eliminar() {
         String input = JOptionPane.showInputDialog(this, "ID de la credencial a eliminar:");
-        if (input == null || input.isBlank()) return;
+        if (input == null || input.isBlank()) {
+            return;
+        }
         try {
             int id = Integer.parseInt(input.trim());
             controller.borrarCredencial(id);

@@ -17,9 +17,12 @@ public class Biblioteca {
     @Column(name = "direccion", length = 150)
     private String direccion;
 
+    // Una biblioteca puede tener varios libros (relación 1:N)
+    // mappedBy = "biblioteca" indica que la FK está en el campo "biblioteca" de la clase Libro
     @OneToMany(mappedBy = "biblioteca")
     private List<Libro> libros;
 
+    // Una biblioteca puede tener varios lectores registrados (relación 1:N)
     @OneToMany(mappedBy = "biblioteca")
     private List<Lector> lectores;
 

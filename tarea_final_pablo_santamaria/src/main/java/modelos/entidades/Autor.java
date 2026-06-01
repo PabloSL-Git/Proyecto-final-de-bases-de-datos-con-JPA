@@ -3,11 +3,15 @@ package modelos.entidades;
 import jakarta.persistence.*;
 import java.util.List;
 
+// @Entity le dice a JPA que esta clase representa una tabla en la base de datos
 @Entity
+// @Table indica el nombre exacto de la tabla en MySQL
 @Table(name = "Autor")
 public class Autor {
 
+    // @Id marca este campo como la clave primaria de la tabla
     @Id
+    // @Column permite indicar el nombre exacto de la columna en la BD
     @Column(name = "id_autor")
     private int idAutor;
 
@@ -23,6 +27,8 @@ public class Autor {
     @Column(name = "nacionalidad", length = 100)
     private String nacionalidad;
 
+    // Un autor puede tener varios libros (relación 1:N)
+    // mappedBy indica que la FK está en la clase Libro, en el campo "autor"
     @OneToMany(mappedBy = "autor")
     private List<Libro> libros;
 

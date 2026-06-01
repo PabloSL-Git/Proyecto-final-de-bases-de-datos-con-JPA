@@ -48,14 +48,18 @@ public class LibroController {
             tx.begin();
             Libro libro = em.find(Libro.class, idLibro);
             if (libro != null) {
+                // Bloqueamos el borrado si el libro tiene préstamos activos (aún no devueltos)
+                // Un préstamo activo tiene fecha_fin = null
                 long prestamosActivos = (long) em.createQuery(
                         "SELECT COUNT(p) FROM Prestamo p WHERE p.libro.idLibro = :id AND p.fechaFin IS NULL")
                         .setParameter("id", idLibro)
                         .getSingleResult();
                 if (prestamosActivos > 0) {
                     throw new IllegalStateException(
-                            "No se puede eliminar: el libro tiene " + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
+                            "No se puede eliminar: el libro tiene "
+                            + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
                 }
+                // Borramos los préstamos históricos (ya devueltos) para no violar la clave foránea
                 em.createQuery("DELETE FROM Prestamo p WHERE p.libro.idLibro = :id")
                         .setParameter("id", idLibro)
                         .executeUpdate();

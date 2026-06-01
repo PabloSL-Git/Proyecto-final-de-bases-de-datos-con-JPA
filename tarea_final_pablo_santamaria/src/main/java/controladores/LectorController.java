@@ -48,11 +48,17 @@ public class LectorController {
             tx.begin();
             Lector lector = em.find(Lector.class, idLector);
             if (lector != null) {
+                // Si el lector tiene préstamos registrados, no podemos borrarlo
+                // La credencial SÍ se borrará automáticamente gracias al CascadeType.ALL
+                // definido en la relación @OneToOne de la clase Lector
                 long prestamos = (long) em.createQuery(
                         "SELECT COUNT(p) FROM Prestamo p WHERE p.lector.idLector = :id")
-                        .setParameter("id", idLector).getSingleResult();
-                if (prestamos > 0) throw new IllegalStateException(
-                        "No se puede eliminar: el lector tiene " + prestamos + " préstamo(s) asociado(s).");
+                        .setParameter("id", idLector)
+                        .getSingleResult();
+                if (prestamos > 0) {
+                    throw new IllegalStateException(
+                            "No se puede eliminar: el lector tiene " + prestamos + " préstamo(s) asociado(s).");
+                }
                 em.remove(lector);
                 System.out.println("Lector eliminado");
             }

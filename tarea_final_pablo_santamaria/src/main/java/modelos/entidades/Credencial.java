@@ -11,12 +11,15 @@ public class Credencial {
     @Column(name = "id_credencial")
     private int idCredencial;
 
+    // unique = true impide que dos credenciales tengan el mismo número de tarjeta
     @Column(name = "numero_tarjeta", nullable = false, unique = true, length = 50)
     private String numeroTarjeta;
 
     @Column(name = "fecha_emision")
     private LocalDate fechaEmision;
 
+    // Relación 1:1 con Lector — cada credencial pertenece a un único lector
+    // unique = true en @JoinColumn garantiza que un lector no tenga más de una credencial
     @OneToOne
     @JoinColumn(name = "id_lector", unique = true)
     private Lector lector;

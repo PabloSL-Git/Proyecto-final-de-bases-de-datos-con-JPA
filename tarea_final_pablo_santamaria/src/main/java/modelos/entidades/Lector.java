@@ -26,13 +26,17 @@ public class Lector {
     @Column(name = "telefono", length = 20)
     private String telefono;
 
+    // Un lector pertenece a una biblioteca (N:1)
     @ManyToOne
     @JoinColumn(name = "id_biblioteca")
     private Biblioteca biblioteca;
 
+    // Cada lector tiene una única credencial (tarjeta de biblioteca) — relación 1:1
+    // CascadeType.ALL significa que al borrar un lector, su credencial también se borra
     @OneToOne(mappedBy = "lector", cascade = CascadeType.ALL)
     private Credencial credencial;
 
+    // Un lector puede tener varios préstamos a lo largo del tiempo (1:N)
     @OneToMany(mappedBy = "lector")
     private List<Prestamo> prestamos;
 

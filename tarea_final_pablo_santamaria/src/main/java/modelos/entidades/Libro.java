@@ -16,13 +16,18 @@ public class Libro {
     @Column(name = "anio_publicacion")
     private int anioPublicacion;
 
-    @Column(name = "estado", length = 50)
+    // El ENUM en MySQL solo permite los valores 'disponible' o 'prestado'
+    // Se actualiza automáticamente al crear o devolver un préstamo
+    @Column(name = "estado", nullable = false)
     private String estado;
 
+    // Relación N:1 con Autor: varios libros pueden tener el mismo autor
+    // @JoinColumn indica qué columna de esta tabla actúa como clave foránea
     @ManyToOne
     @JoinColumn(name = "id_autor")
     private Autor autor;
 
+    // Relación N:1 con Biblioteca: varios libros pueden pertenecer a la misma biblioteca
     @ManyToOne
     @JoinColumn(name = "id_biblioteca")
     private Biblioteca biblioteca;

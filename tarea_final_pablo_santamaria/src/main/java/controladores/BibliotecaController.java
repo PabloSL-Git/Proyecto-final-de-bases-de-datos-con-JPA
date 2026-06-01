@@ -48,14 +48,21 @@ public class BibliotecaController {
             tx.begin();
             Biblioteca biblioteca = em.find(Biblioteca.class, idBiblioteca);
             if (biblioteca != null) {
+                // Una biblioteca no se puede borrar si tiene libros o lectores asociados
+                // porque violaría las claves foráneas de esas tablas
                 long libros = (long) em.createQuery(
                         "SELECT COUNT(l) FROM Libro l WHERE l.biblioteca.idBiblioteca = :id")
-                        .setParameter("id", idBiblioteca).getSingleResult();
+                        .setParameter("id", idBiblioteca)
+                        .getSingleResult();
                 long lectores = (long) em.createQuery(
                         "SELECT COUNT(l) FROM Lector l WHERE l.biblioteca.idBiblioteca = :id")
-                        .setParameter("id", idBiblioteca).getSingleResult();
-                if (libros > 0 || lectores > 0) throw new IllegalStateException(
-                        "No se puede eliminar: la biblioteca tiene " + libros + " libro(s) y " + lectores + " lector(es) asociado(s).");
+                        .setParameter("id", idBiblioteca)
+                        .getSingleResult();
+                if (libros > 0 || lectores > 0) {
+                    throw new IllegalStateException(
+                            "No se puede eliminar: la biblioteca tiene "
+                            + libros + " libro(s) y " + lectores + " lector(es) asociado(s).");
+                }
                 em.remove(biblioteca);
                 System.out.println("Biblioteca eliminada");
             }

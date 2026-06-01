@@ -24,17 +24,19 @@ public class LibroDialog extends JDialog {
     private final AutorController autorController = new AutorController();
     private final BibliotecaController bibliotecaController = new BibliotecaController();
 
+    // Guardamos las listas para recuperar el ID al guardar
     private List<Autor> autores;
     private List<Biblioteca> bibliotecas;
 
     public LibroDialog(Frame parent) {
-        super(parent, "Insertar Libro", true);
-        setSize(420, 320);
+        super(parent, "Insertar Libro", true); // true = modal (bloquea la ventana padre)
+        setSize(420, 340);
         setLocationRelativeTo(parent);
         initComponents();
     }
 
     private void initComponents() {
+        // Cargamos los autores y bibliotecas para los desplegables
         autores = autorController.listarAutores();
         bibliotecas = bibliotecaController.listarBibliotecas();
 
@@ -56,21 +58,27 @@ public class LibroDialog extends JDialog {
         cmbEstado = new JComboBox<>(new String[]{"disponible", "prestado"});
         add(cmbEstado);
 
+        // Construimos las opciones del desplegable de autores
+        String[] opcionesAutor = new String[autores.size()];
+        for (int i = 0; i < autores.size(); i++) {
+            Autor a = autores.get(i);
+            opcionesAutor[i] = a.getIdAutor() + " - " + a.getNombre() + " " + a.getApellido1();
+        }
         add(new JLabel("Autor:"));
-        String[] opAutores = autores.stream()
-                .map(a -> a.getIdAutor() + " - " + a.getNombre() + " " + a.getApellido1())
-                .toArray(String[]::new);
-        cmbAutor = new JComboBox<>(opAutores);
+        cmbAutor = new JComboBox<>(opcionesAutor);
         add(cmbAutor);
 
+        // Construimos las opciones del desplegable de bibliotecas
+        String[] opcionesBiblioteca = new String[bibliotecas.size()];
+        for (int i = 0; i < bibliotecas.size(); i++) {
+            Biblioteca b = bibliotecas.get(i);
+            opcionesBiblioteca[i] = b.getIdBiblioteca() + " - " + b.getNombre();
+        }
         add(new JLabel("Biblioteca:"));
-        String[] opBibliotecas = bibliotecas.stream()
-                .map(b -> b.getIdBiblioteca() + " - " + b.getNombre())
-                .toArray(String[]::new);
-        cmbBiblioteca = new JComboBox<>(opBibliotecas);
+        cmbBiblioteca = new JComboBox<>(opcionesBiblioteca);
         add(cmbBiblioteca);
 
-        JButton btnGuardar = new JButton("Guardar");
+        JButton btnGuardar  = new JButton("Guardar");
         JButton btnCancelar = new JButton("Cancelar");
         add(btnGuardar);
         add(btnCancelar);
@@ -87,19 +95,22 @@ public class LibroDialog extends JDialog {
             libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
             libro.setEstado((String) cmbEstado.getSelectedItem());
 
+            // Extraemos el ID del autor del texto seleccionado y buscamos el objeto
             if (cmbAutor.getSelectedItem() != null && !autores.isEmpty()) {
-                int idAutor = Integer.parseInt(((String) cmbAutor.getSelectedItem()).split(" - ")[0]);
+                String seleccionAutor = (String) cmbAutor.getSelectedItem();
+                int idAutor = Integer.parseInt(seleccionAutor.split(" - ")[0]);
                 libro.setAutor(autorController.buscarPorId(idAutor));
             }
+            // Igual para la biblioteca
             if (cmbBiblioteca.getSelectedItem() != null && !bibliotecas.isEmpty()) {
-                int idBib = Integer.parseInt(((String) cmbBiblioteca.getSelectedItem()).split(" - ")[0]);
-                libro.setBiblioteca(bibliotecaController.buscarPorId(idBib));
+                String seleccionBiblioteca = (String) cmbBiblioteca.getSelectedItem();
+                int idBiblioteca = Integer.parseInt(seleccionBiblioteca.split(" - ")[0]);
+                libro.setBiblioteca(bibliotecaController.buscarPorId(idBiblioteca));
             }
 
             libroController.insertarLibro(libro);
             JOptionPane.showMessageDialog(this, "Libro insertado correctamente");
             dispose();
-
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "ID y Año deben ser números enteros");
         } catch (Exception e) {

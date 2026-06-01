@@ -15,6 +15,7 @@ public class PrestamoController {
         try {
             tx.begin();
             em.persist(prestamo);
+            // Al crear un préstamo, marcamos el libro como "prestado" automáticamente
             if (prestamo.getLibro() != null) {
                 prestamo.getLibro().setEstado("prestado");
                 em.merge(prestamo.getLibro());
@@ -35,6 +36,8 @@ public class PrestamoController {
         try {
             tx.begin();
             em.merge(prestamo);
+            // Si se ha puesto fecha de fin, significa que el libro ha sido devuelto
+            // Actualizamos el estado del libro a "disponible"
             if (prestamo.getLibro() != null && prestamo.getFechaFin() != null) {
                 prestamo.getLibro().setEstado("disponible");
                 em.merge(prestamo.getLibro());
@@ -56,6 +59,7 @@ public class PrestamoController {
             tx.begin();
             Prestamo prestamo = em.find(Prestamo.class, idPrestamo);
             if (prestamo != null) {
+                // Al eliminar el préstamo, dejamos el libro disponible de nuevo
                 if (prestamo.getLibro() != null) {
                     prestamo.getLibro().setEstado("disponible");
                     em.merge(prestamo.getLibro());
