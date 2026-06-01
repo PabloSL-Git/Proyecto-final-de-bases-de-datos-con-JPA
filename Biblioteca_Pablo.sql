@@ -94,8 +94,7 @@ create table Prestamo
     on delete no action on update cascade
 );
 
-
--- INSERT
+-- INSERT BIBLIOTECA
 
 insert into Biblioteca values
 (1, 'Biblioteca Central', 'Calle Mayor 1'),
@@ -103,6 +102,8 @@ insert into Biblioteca values
 (3, 'Biblioteca Sur', 'Calle Sur 23'),
 (4, 'Biblioteca Este', 'Avenida Este 12'),
 (5, 'Biblioteca Oeste', 'Calle Oeste 9');
+
+-- INSERT AUTOR
 
 insert into Autor values
 (1, 'Gabriel', 'Garcia', null, 'Colombia'),
@@ -112,13 +113,17 @@ insert into Autor values
 (5, 'Julio', 'Cortazar', null, 'Argentina'),
 (6, 'Miguel', 'de Cervantes', 'Saavedra', 'España');
 
+-- INSERT LIBRO (CORREGIDO)
+
 insert into Libro values
-(1, 'Cien años de soledad',    1967, 'disponible', 1, 1),
-(2, 'El Hobbit',               1937, 'prestado',   2, 2),
-(3, '1984',                    1949, 'disponible', 3, 3),
-(4, 'La casa de los espiritus',1982, 'disponible', 4, 4),
-(5, 'Rayuela',                 1963, 'prestado',   5, 5),
-(6, 'Don Quijote de la Mancha',1605, 'disponible', 6, 1);
+(1, 'Cien años de soledad',     1967, 'disponible', 1, 1),
+(2, 'El Hobbit',                1937, 'prestado',   2, 2),
+(3, '1984',                     1949, 'disponible', 3, 3),
+(4, 'La casa de los espiritus', 1982, 'disponible', 4, 4),
+(5, 'Rayuela',                  1963, 'prestado',   5, 5),
+(6, 'Don Quijote de la Mancha', 1605, 'disponible', 6, 1);
+
+-- INSERT LECTOR
 
 insert into Lector values
 (1, 'Juan',   'Perez',  'Gomez',     'juan@email.com',   '123456789', 1),
@@ -127,6 +132,8 @@ insert into Lector values
 (4, 'Ana',    'Torres', 'Sanchez',   'ana@email.com',    '321654987', 4),
 (5, 'Luis',   'Gomez',  'Diaz',      'luis@email.com',   '654987321', 5);
 
+-- INSERT CREDENCIAL
+
 insert into Credencial values
 (1, 'TARJ001', '2024-01-01', 1),
 (2, 'TARJ002', '2024-01-02', 2),
@@ -134,9 +141,11 @@ insert into Credencial values
 (4, 'TARJ004', '2024-01-04', 4),
 (5, 'TARJ005', '2024-01-05', 5);
 
+-- INSERT PRESTAMO
+
 insert into Prestamo values
-(1, '2026-05-01', null,         1, 2),  -- El Hobbit: préstamo activo
-(2, '2026-05-15', null,         2, 5),  -- Rayuela: préstamo activo
-(3, '2026-01-10', '2026-01-25', 3, 1),  -- Cien años de soledad: devuelto
-(4, '2026-02-01', '2026-02-15', 4, 3),  -- 1984: devuelto
-(5, '2026-03-01', '2026-03-15', 5, 4);  -- La casa de los espíritus: devuelto
+(1, '2026-05-01', null,         1, 2),
+(2, '2026-05-15', null,         2, 5),
+(3, '2026-01-10', '2026-01-25', 3, 1),
+(4, '2026-02-01', '2026-02-15', 4, 3),
+(5, '2026-03-01', '2026-03-15', 5, 4);
