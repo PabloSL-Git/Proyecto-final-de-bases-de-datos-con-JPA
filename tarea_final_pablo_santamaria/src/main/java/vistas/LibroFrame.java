@@ -25,10 +25,10 @@ public class LibroFrame extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton btnListar    = new JButton("Listar");
-        JButton btnInsertar  = new JButton("Insertar");
+        JButton btnListar     = new JButton("Listar");
+        JButton btnInsertar   = new JButton("Insertar");
         JButton btnActualizar = new JButton("Actualizar");
-        JButton btnEliminar  = new JButton("Eliminar");
+        JButton btnEliminar   = new JButton("Eliminar");
 
         botones.add(btnListar);
         botones.add(btnInsertar);
@@ -42,14 +42,8 @@ public class LibroFrame extends JFrame {
         add(panel);
 
         btnListar.addActionListener(e -> listar());
-        btnInsertar.addActionListener(e -> {
-            new LibroDialog(this).setVisible(true);
-            listar();
-        });
-        btnActualizar.addActionListener(e -> {
-            abrirActualizar();
-            listar();
-        });
+        btnInsertar.addActionListener(e -> abrirInsertar());
+        btnActualizar.addActionListener(e -> abrirActualizar());
         btnEliminar.addActionListener(e -> eliminar());
     }
 
@@ -61,25 +55,50 @@ public class LibroFrame extends JFrame {
             return;
         }
         for (Libro l : libros) {
-            String autor = l.getAutor() != null ? l.getAutor().getNombre() + " " + l.getAutor().getApellido1() : "-";
-            String bib   = l.getBiblioteca() != null ? l.getBiblioteca().getNombre() : "-";
+            String nombreAutor;
+            if (l.getAutor() != null) {
+                nombreAutor = l.getAutor().getNombre() + " " + l.getAutor().getApellido1();
+            } else {
+                nombreAutor = "-";
+            }
+
+            String nombreBiblioteca;
+            if (l.getBiblioteca() != null) {
+                nombreBiblioteca = l.getBiblioteca().getNombre();
+            } else {
+                nombreBiblioteca = "-";
+            }
+
             textArea.append("ID: " + l.getIdLibro()
                     + " | " + l.getTitulo()
                     + " (" + l.getAnioPublicacion() + ")"
                     + " | Estado: " + l.getEstado()
-                    + " | Autor: " + autor
-                    + " | Biblioteca: " + bib + "\n");
+                    + " | Autor: " + nombreAutor
+                    + " | Biblioteca: " + nombreBiblioteca + "\n");
         }
+    }
+
+    private void abrirInsertar() {
+        // Abrimos el diálogo de inserción; al cerrarse, refrescamos la lista
+        new InsertarLibroDialog(this).setVisible(true);
+        listar();
     }
 
     private void abrirActualizar() {
         String input = JOptionPane.showInputDialog(this, "ID del libro a actualizar:");
-        if (input == null || input.isBlank()) return;
+        if (input == null || input.isBlank()) {
+            return;
+        }
         try {
             int id = Integer.parseInt(input.trim());
             Libro libro = controller.buscarPorId(id);
-            if (libro == null) { JOptionPane.showMessageDialog(this, "Libro no encontrado"); return; }
-            new LibroDialogUpdate(this, libro).setVisible(true);
+            if (libro == null) {
+                JOptionPane.showMessageDialog(this, "Libro no encontrado");
+                return;
+            }
+            // Abrimos el diálogo de actualización pasándole el libro encontrado
+            new ActualizarLibroDialog(this, libro).setVisible(true);
+            listar();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         }
@@ -87,7 +106,9 @@ public class LibroFrame extends JFrame {
 
     private void eliminar() {
         String input = JOptionPane.showInputDialog(this, "ID del libro a eliminar:");
-        if (input == null || input.isBlank()) return;
+        if (input == null || input.isBlank()) {
+            return;
+        }
         try {
             int id = Integer.parseInt(input.trim());
             controller.borrarLibro(id);
@@ -96,6 +117,7 @@ public class LibroFrame extends JFrame {
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (IllegalStateException e) {
+            // El controlador lanza esta excepción si el libro tiene préstamos activos
             JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al eliminar libro");

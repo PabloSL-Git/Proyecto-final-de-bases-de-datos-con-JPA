@@ -11,7 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class LibroDialogUpdate extends JDialog {
+// Diálogo exclusivo para ACTUALIZAR un libro existente
+// Se abre desde LibroFrame al pulsar "Actualizar", recibe el Libro que se va a editar
+public class ActualizarLibroDialog extends JDialog {
 
     private JTextField txtTitulo;
     private JTextField txtAnio;
@@ -27,13 +29,13 @@ public class LibroDialogUpdate extends JDialog {
     private List<Autor> autores;
     private List<Biblioteca> bibliotecas;
 
-    public LibroDialogUpdate(Frame parent, Libro libro) {
+    public ActualizarLibroDialog(Frame parent, Libro libro) {
         super(parent, "Actualizar Libro", true);
         this.libro = libro;
         setSize(420, 320);
         setLocationRelativeTo(parent);
         initComponents();
-        cargarDatosActuales();
+        cargarDatosActuales(); // Rellenamos los campos con los valores actuales
     }
 
     private void initComponents() {
@@ -82,27 +84,30 @@ public class LibroDialogUpdate extends JDialog {
     }
 
     private void cargarDatosActuales() {
-        // Rellenamos los campos con los datos actuales del libro
+        // Rellenamos cada campo con el valor actual del libro
         txtTitulo.setText(libro.getTitulo());
         txtAnio.setText(String.valueOf(libro.getAnioPublicacion()));
         cmbEstado.setSelectedItem(libro.getEstado());
 
-        // Buscamos en el desplegable el autor actual del libro y lo seleccionamos
+        // Pre-seleccionamos el autor actual en el desplegable
+        // Las opciones tienen formato "id - nombre", buscamos la que empiece con el ID del autor actual
         if (libro.getAutor() != null) {
+            String prefijoBuscado = libro.getAutor().getIdAutor() + " - ";
             for (int i = 0; i < cmbAutor.getItemCount(); i++) {
-                String item = (String) cmbAutor.getItemAt(i);
-                // Comparamos por ID (la parte antes del " - ")
-                if (item.startsWith(libro.getAutor().getIdAutor() + " - ")) {
+                String opcion = (String) cmbAutor.getItemAt(i);
+                if (opcion.startsWith(prefijoBuscado)) {
                     cmbAutor.setSelectedIndex(i);
                     break;
                 }
             }
         }
-        // Igual para la biblioteca
+
+        // Pre-seleccionamos la biblioteca actual en el desplegable
         if (libro.getBiblioteca() != null) {
+            String prefijoBuscado = libro.getBiblioteca().getIdBiblioteca() + " - ";
             for (int i = 0; i < cmbBiblioteca.getItemCount(); i++) {
-                String item = (String) cmbBiblioteca.getItemAt(i);
-                if (item.startsWith(libro.getBiblioteca().getIdBiblioteca() + " - ")) {
+                String opcion = (String) cmbBiblioteca.getItemAt(i);
+                if (opcion.startsWith(prefijoBuscado)) {
                     cmbBiblioteca.setSelectedIndex(i);
                     break;
                 }
@@ -116,14 +121,17 @@ public class LibroDialogUpdate extends JDialog {
             libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
             libro.setEstado((String) cmbEstado.getSelectedItem());
 
-            if (cmbAutor.getSelectedItem() != null && !autores.isEmpty()) {
-                String seleccionAutor = (String) cmbAutor.getSelectedItem();
-                int idAutor = Integer.parseInt(seleccionAutor.split(" - ")[0]);
+            if (!autores.isEmpty()) {
+                String textoAutor = (String) cmbAutor.getSelectedItem();
+                String[] partesAutor = textoAutor.split(" - ");
+                int idAutor = Integer.parseInt(partesAutor[0]);
                 libro.setAutor(autorController.buscarPorId(idAutor));
             }
-            if (cmbBiblioteca.getSelectedItem() != null && !bibliotecas.isEmpty()) {
-                String seleccionBiblioteca = (String) cmbBiblioteca.getSelectedItem();
-                int idBiblioteca = Integer.parseInt(seleccionBiblioteca.split(" - ")[0]);
+
+            if (!bibliotecas.isEmpty()) {
+                String textoBiblioteca = (String) cmbBiblioteca.getSelectedItem();
+                String[] partesBiblioteca = textoBiblioteca.split(" - ");
+                int idBiblioteca = Integer.parseInt(partesBiblioteca[0]);
                 libro.setBiblioteca(bibliotecaController.buscarPorId(idBiblioteca));
             }
 

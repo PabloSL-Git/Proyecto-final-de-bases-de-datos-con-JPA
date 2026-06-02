@@ -64,17 +64,28 @@ public class PrestamoFrame extends JFrame {
             return;
         }
         for (Prestamo p : prestamos) {
-            String nombreLector = (p.getLector() != null)
-                    ? p.getLector().getNombre() + " " + p.getLector().getApellido1()
-                    : "-";
-            String tituloLibro = (p.getLibro() != null) ? p.getLibro().getTitulo() : "-";
-            // Si fecha_fin es null, el préstamo sigue activo
+            String nombreLector;
+            if (p.getLector() != null) {
+                nombreLector = p.getLector().getNombre() + " " + p.getLector().getApellido1();
+            } else {
+                nombreLector = "-";
+            }
+
+            String tituloLibro;
+            if (p.getLibro() != null) {
+                tituloLibro = p.getLibro().getTitulo();
+            } else {
+                tituloLibro = "-";
+            }
+
+            // Si fecha_fin es null el préstamo está activo; si tiene fecha, ya fue devuelto
             String estadoPrestamo;
             if (p.getFechaFin() == null) {
                 estadoPrestamo = "ACTIVO";
             } else {
                 estadoPrestamo = "Devuelto el " + p.getFechaFin();
             }
+
             textArea.append("ID: " + p.getIdPrestamo()
                     + " | Lector: " + nombreLector
                     + " | Libro: " + tituloLibro
@@ -85,10 +96,12 @@ public class PrestamoFrame extends JFrame {
 
     private void nuevoPrestamo() {
         List<Lector> lectores = lectorController.listarLectores();
-        // Solo mostramos los libros con estado "disponible" para prestar
-        List<Libro> todosLibros = libroController.listarLibros();
+
+        // Filtramos solo los libros con estado "disponible"
+        // No tiene sentido prestar un libro que ya está prestado
+        List<Libro> todosLosLibros = libroController.listarLibros();
         List<Libro> librosDisponibles = new ArrayList<>();
-        for (Libro libro : todosLibros) {
+        for (Libro libro : todosLosLibros) {
             if (libro.getEstado().equals("disponible")) {
                 librosDisponibles.add(libro);
             }
@@ -103,12 +116,12 @@ public class PrestamoFrame extends JFrame {
             return;
         }
 
-        // Construimos las opciones de los desplegables en formato "id - texto"
         String[] opcionesLector = new String[lectores.size()];
         for (int i = 0; i < lectores.size(); i++) {
             Lector l = lectores.get(i);
             opcionesLector[i] = l.getIdLector() + " - " + l.getNombre() + " " + l.getApellido1();
         }
+
         String[] opcionesLibro = new String[librosDisponibles.size()];
         for (int i = 0; i < librosDisponibles.size(); i++) {
             Libro l = librosDisponibles.get(i);
@@ -116,32 +129,35 @@ public class PrestamoFrame extends JFrame {
         }
 
         JTextField txtId    = new JTextField();
-        // Ponemos la fecha de hoy como valor por defecto
-        JTextField txtFecha = new JTextField(LocalDate.now().toString());
+        JTextField txtFecha = new JTextField(LocalDate.now().toString()); // Fecha de hoy por defecto
         JComboBox<String> cmbLector = new JComboBox<>(opcionesLector);
         JComboBox<String> cmbLibro  = new JComboBox<>(opcionesLibro);
 
         JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-        panel.add(new JLabel("ID préstamo:"));                panel.add(txtId);
-        panel.add(new JLabel("Fecha inicio (yyyy-mm-dd):"));  panel.add(txtFecha);
-        panel.add(new JLabel("Lector:"));                     panel.add(cmbLector);
-        panel.add(new JLabel("Libro (solo disponibles):"));   panel.add(cmbLibro);
+        panel.add(new JLabel("ID préstamo:"));               panel.add(txtId);
+        panel.add(new JLabel("Fecha inicio (yyyy-mm-dd):")); panel.add(txtFecha);
+        panel.add(new JLabel("Lector:"));                    panel.add(cmbLector);
+        panel.add(new JLabel("Libro (solo disponibles):"));  panel.add(cmbLibro);
 
         int resultado = JOptionPane.showConfirmDialog(this, panel, "Nuevo Préstamo", JOptionPane.OK_CANCEL_OPTION);
         if (resultado != JOptionPane.OK_OPTION) {
             return;
         }
         try {
-            // Extraemos el ID del texto seleccionado ("2 - El Hobbit" → 2)
-            String seleccionLector = (String) cmbLector.getSelectedItem();
-            String seleccionLibro  = (String) cmbLibro.getSelectedItem();
-            int idLector = Integer.parseInt(seleccionLector.split(" - ")[0]);
-            int idLibro  = Integer.parseInt(seleccionLibro.split(" - ")[0]);
+            // Extraemos el ID del lector del texto seleccionado ("1 - Juan Perez" → ID 1)
+            String textoLector = (String) cmbLector.getSelectedItem();
+            String[] partesLector = textoLector.split(" - ");
+            int idLector = Integer.parseInt(partesLector[0]);
+
+            // Extraemos el ID del libro del texto seleccionado ("2 - El Hobbit" → ID 2)
+            String textoLibro = (String) cmbLibro.getSelectedItem();
+            String[] partesLibro = textoLibro.split(" - ");
+            int idLibro = Integer.parseInt(partesLibro[0]);
 
             Prestamo p = new Prestamo();
             p.setIdPrestamo(Integer.parseInt(txtId.getText().trim()));
             p.setFechaInicio(LocalDate.parse(txtFecha.getText().trim()));
-            p.setFechaFin(null); // null indica que el préstamo está activo
+            p.setFechaFin(null); // null = préstamo activo, sin fecha de devolución todavía
             p.setLector(lectorController.buscarPorId(idLector));
             p.setLibro(libroController.buscarPorId(idLibro));
 
@@ -166,18 +182,21 @@ public class PrestamoFrame extends JFrame {
         try {
             int id = Integer.parseInt(input.trim());
             Prestamo p = controller.buscarPorId(id);
+
             if (p == null) {
                 JOptionPane.showMessageDialog(this, "Préstamo no encontrado");
                 return;
             }
-            // Comprobamos que el préstamo no haya sido devuelto ya
+
+            // Si ya tiene fecha_fin, el libro ya fue devuelto anteriormente
             if (p.getFechaFin() != null) {
                 JOptionPane.showMessageDialog(this,
                         "Este préstamo ya fue devuelto el " + p.getFechaFin(),
                         "Ya devuelto", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            // Registramos la fecha de devolución como hoy
+
+            // Ponemos la fecha de hoy como fecha de devolución
             // El controlador actualizará el estado del libro a "disponible"
             p.setFechaFin(LocalDate.now());
             controller.actualizarPrestamo(p);

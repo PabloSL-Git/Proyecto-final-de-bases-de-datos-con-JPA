@@ -15,7 +15,6 @@ public class AutorFrame extends JFrame {
     public AutorFrame() {
         setTitle("Gestión de Autores");
         setSize(900, 500);
-        // DISPOSE_ON_CLOSE: cierra solo esta ventana, no toda la aplicación
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         initComponents();
@@ -56,9 +55,21 @@ public class AutorFrame extends JFrame {
             return;
         }
         for (Autor a : autores) {
-            // Construimos la línea de texto para cada autor
-            String apellido2 = (a.getApellido2() != null) ? " " + a.getApellido2() : "";
-            String nacionalidad = (a.getNacionalidad() != null) ? a.getNacionalidad() : "-";
+            // apellido2 y nacionalidad son opcionales, pueden ser null
+            String apellido2;
+            if (a.getApellido2() != null) {
+                apellido2 = " " + a.getApellido2();
+            } else {
+                apellido2 = "";
+            }
+
+            String nacionalidad;
+            if (a.getNacionalidad() != null) {
+                nacionalidad = a.getNacionalidad();
+            } else {
+                nacionalidad = "-";
+            }
+
             textArea.append("ID: " + a.getIdAutor()
                     + " | " + a.getNombre() + " " + a.getApellido1() + apellido2
                     + " | Nacionalidad: " + nacionalidad + "\n");
@@ -66,7 +77,6 @@ public class AutorFrame extends JFrame {
     }
 
     private void insertar() {
-        // Creamos un panel con campos de texto para introducir los datos
         JTextField txtId     = new JTextField();
         JTextField txtNombre = new JTextField();
         JTextField txtAp1    = new JTextField();
@@ -74,24 +84,34 @@ public class AutorFrame extends JFrame {
         JTextField txtNac    = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(5, 2, 5, 5));
-        panel.add(new JLabel("ID:"));              panel.add(txtId);
-        panel.add(new JLabel("Nombre:"));          panel.add(txtNombre);
-        panel.add(new JLabel("Apellido 1:"));      panel.add(txtAp1);
-        panel.add(new JLabel("Apellido 2 (opcional):")); panel.add(txtAp2);
-        panel.add(new JLabel("Nacionalidad:"));    panel.add(txtNac);
+        panel.add(new JLabel("ID:"));                      panel.add(txtId);
+        panel.add(new JLabel("Nombre:"));                  panel.add(txtNombre);
+        panel.add(new JLabel("Apellido 1:"));              panel.add(txtAp1);
+        panel.add(new JLabel("Apellido 2 (opcional):"));   panel.add(txtAp2);
+        panel.add(new JLabel("Nacionalidad:"));            panel.add(txtNac);
 
         int resultado = JOptionPane.showConfirmDialog(this, panel, "Insertar Autor", JOptionPane.OK_CANCEL_OPTION);
         if (resultado != JOptionPane.OK_OPTION) {
-            return; // El usuario canceló
+            return;
         }
         try {
             Autor a = new Autor();
             a.setIdAutor(Integer.parseInt(txtId.getText().trim()));
             a.setNombre(txtNombre.getText().trim());
             a.setApellido1(txtAp1.getText().trim());
-            // Si el campo está vacío, guardamos null en la BD
-            a.setApellido2(txtAp2.getText().isBlank() ? null : txtAp2.getText().trim());
-            a.setNacionalidad(txtNac.getText().isBlank() ? null : txtNac.getText().trim());
+
+            // Si el campo está vacío guardamos null; si tiene valor, lo guardamos
+            if (txtAp2.getText().isBlank()) {
+                a.setApellido2(null);
+            } else {
+                a.setApellido2(txtAp2.getText().trim());
+            }
+
+            if (txtNac.getText().isBlank()) {
+                a.setNacionalidad(null);
+            } else {
+                a.setNacionalidad(txtNac.getText().trim());
+            }
 
             controller.insertarAutor(a);
             JOptionPane.showMessageDialog(this, "Autor insertado correctamente");
@@ -116,26 +136,52 @@ public class AutorFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Autor no encontrado");
                 return;
             }
-            // Pre-rellenamos los campos con los valores actuales del autor
+
+            // Pre-rellenamos con los valores actuales (null lo tratamos como cadena vacía)
             JTextField txtNombre = new JTextField(a.getNombre());
             JTextField txtAp1    = new JTextField(a.getApellido1());
-            JTextField txtAp2    = new JTextField(a.getApellido2() != null ? a.getApellido2() : "");
-            JTextField txtNac    = new JTextField(a.getNacionalidad() != null ? a.getNacionalidad() : "");
+
+            String valorAp2;
+            if (a.getApellido2() != null) {
+                valorAp2 = a.getApellido2();
+            } else {
+                valorAp2 = "";
+            }
+            JTextField txtAp2 = new JTextField(valorAp2);
+
+            String valorNac;
+            if (a.getNacionalidad() != null) {
+                valorNac = a.getNacionalidad();
+            } else {
+                valorNac = "";
+            }
+            JTextField txtNac = new JTextField(valorNac);
 
             JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-            panel.add(new JLabel("Nombre:"));     panel.add(txtNombre);
-            panel.add(new JLabel("Apellido 1:")); panel.add(txtAp1);
-            panel.add(new JLabel("Apellido 2:")); panel.add(txtAp2);
+            panel.add(new JLabel("Nombre:"));      panel.add(txtNombre);
+            panel.add(new JLabel("Apellido 1:"));  panel.add(txtAp1);
+            panel.add(new JLabel("Apellido 2:"));  panel.add(txtAp2);
             panel.add(new JLabel("Nacionalidad:")); panel.add(txtNac);
 
             int resultado = JOptionPane.showConfirmDialog(this, panel, "Actualizar Autor", JOptionPane.OK_CANCEL_OPTION);
             if (resultado != JOptionPane.OK_OPTION) {
                 return;
             }
+
             a.setNombre(txtNombre.getText().trim());
             a.setApellido1(txtAp1.getText().trim());
-            a.setApellido2(txtAp2.getText().isBlank() ? null : txtAp2.getText().trim());
-            a.setNacionalidad(txtNac.getText().isBlank() ? null : txtNac.getText().trim());
+
+            if (txtAp2.getText().isBlank()) {
+                a.setApellido2(null);
+            } else {
+                    a.setApellido2(txtAp2.getText().trim());
+            }
+
+            if (txtNac.getText().isBlank()) {
+                a.setNacionalidad(null);
+            } else {
+                a.setNacionalidad(txtNac.getText().trim());
+            }
 
             controller.actualizarAutor(a);
             JOptionPane.showMessageDialog(this, "Autor actualizado correctamente");
@@ -161,7 +207,6 @@ public class AutorFrame extends JFrame {
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (IllegalStateException e) {
-            // El controlador lanza esta excepción cuando hay libros asociados
             JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error al eliminar autor");
