@@ -1,55 +1,32 @@
 package controladores;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import modelos.entidades.Biblioteca;
-import utilidades.JPAUtil;
 
 import java.util.List;
 
-public class BibliotecaController {
+public class BibliotecaController extends AbstractCrudController<Biblioteca, Integer> {
+
+    public BibliotecaController() {
+        super(Biblioteca.class);
+    }
 
     public void insertarBiblioteca(Biblioteca biblioteca) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.persist(biblioteca);
-            tx.commit();
-            System.out.println("Biblioteca insertada");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        insertar(biblioteca);
+        System.out.println("Biblioteca insertada");
     }
 
     public void actualizarBiblioteca(Biblioteca biblioteca) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.merge(biblioteca);
-            tx.commit();
-            System.out.println("Biblioteca actualizada");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        actualizar(biblioteca);
+        System.out.println("Biblioteca actualizada");
     }
 
     public void borrarBiblioteca(int idBiblioteca) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        var em = utilidades.JPAUtil.getEntityManager();
+        var tx = em.getTransaction();
         try {
             tx.begin();
             Biblioteca biblioteca = em.find(Biblioteca.class, idBiblioteca);
             if (biblioteca != null) {
-                // Una biblioteca no se puede borrar si tiene libros o lectores asociados
-                // porque violaría las claves foráneas de esas tablas
                 long libros = (long) em.createQuery(
                         "SELECT COUNT(l) FROM Libro l WHERE l.biblioteca.idBiblioteca = :id")
                         .setParameter("id", idBiblioteca)
@@ -61,7 +38,7 @@ public class BibliotecaController {
                 if (libros > 0 || lectores > 0) {
                     throw new IllegalStateException(
                             "No se puede eliminar: la biblioteca tiene "
-                            + libros + " libro(s) y " + lectores + " lector(es) asociado(s).");
+                                    + libros + " libro(s) y " + lectores + " lector(es) asociado(s).");
                 }
                 em.remove(biblioteca);
                 System.out.println("Biblioteca eliminada");
@@ -79,20 +56,10 @@ public class BibliotecaController {
     }
 
     public List<Biblioteca> listarBibliotecas() {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT b FROM Biblioteca b", Biblioteca.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return listar();
     }
 
     public Biblioteca buscarPorId(int idBiblioteca) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.find(Biblioteca.class, idBiblioteca);
-        } finally {
-            em.close();
-        }
+        return super.buscarPorId(idBiblioteca);
     }
 }

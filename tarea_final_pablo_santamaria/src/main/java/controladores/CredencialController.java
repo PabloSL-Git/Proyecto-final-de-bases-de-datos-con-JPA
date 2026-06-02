@@ -1,49 +1,28 @@
 package controladores;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import modelos.entidades.Credencial;
-import utilidades.JPAUtil;
 
 import java.util.List;
 
-public class CredencialController {
+public class CredencialController extends AbstractCrudController<Credencial, Integer> {
+
+    public CredencialController() {
+        super(Credencial.class);
+    }
 
     public void insertarCredencial(Credencial credencial) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.persist(credencial);
-            tx.commit();
-            System.out.println("Credencial insertada");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        insertar(credencial);
+        System.out.println("Credencial insertada");
     }
 
     public void actualizarCredencial(Credencial credencial) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.merge(credencial);
-            tx.commit();
-            System.out.println("Credencial actualizada");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        actualizar(credencial);
+        System.out.println("Credencial actualizada");
     }
 
     public void borrarCredencial(int idCredencial) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        var em = utilidades.JPAUtil.getEntityManager();
+        var tx = em.getTransaction();
         try {
             tx.begin();
             Credencial credencial = em.find(Credencial.class, idCredencial);
@@ -61,20 +40,10 @@ public class CredencialController {
     }
 
     public List<Credencial> listarCredenciales() {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT c FROM Credencial c", Credencial.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return listar();
     }
 
     public Credencial buscarPorId(int idCredencial) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.find(Credencial.class, idCredencial);
-        } finally {
-            em.close();
-        }
+        return super.buscarPorId(idCredencial);
     }
 }

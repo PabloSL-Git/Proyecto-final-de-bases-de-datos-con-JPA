@@ -7,7 +7,11 @@ import utilidades.JPAUtil;
 
 import java.util.List;
 
-public class PrestamoController {
+public class PrestamoController extends AbstractCrudController<Prestamo, Integer> {
+
+    public PrestamoController() {
+        super(Prestamo.class);
+    }
 
     public void insertarPrestamo(Prestamo prestamo) {
         EntityManager em = JPAUtil.getEntityManager();
@@ -77,20 +81,10 @@ public class PrestamoController {
     }
 
     public List<Prestamo> listarPrestamos() {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT p FROM Prestamo p", Prestamo.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return listar();
     }
 
     public Prestamo buscarPorId(int idPrestamo) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.find(Prestamo.class, idPrestamo);
-        } finally {
-            em.close();
-        }
+        return super.buscarPorId(idPrestamo);
     }
 }

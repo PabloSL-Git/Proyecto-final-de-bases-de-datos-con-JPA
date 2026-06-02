@@ -1,56 +1,32 @@
 package controladores;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import modelos.entidades.Lector;
-import utilidades.JPAUtil;
 
 import java.util.List;
 
-public class LectorController {
+public class LectorController extends AbstractCrudController<Lector, Integer> {
+
+    public LectorController() {
+        super(Lector.class);
+    }
 
     public void insertarLector(Lector lector) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.persist(lector);
-            tx.commit();
-            System.out.println("Lector insertado");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        insertar(lector);
+        System.out.println("Lector insertado");
     }
 
     public void actualizarLector(Lector lector) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.merge(lector);
-            tx.commit();
-            System.out.println("Lector actualizado");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        actualizar(lector);
+        System.out.println("Lector actualizado");
     }
 
     public void borrarLector(int idLector) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        var em = utilidades.JPAUtil.getEntityManager();
+        var tx = em.getTransaction();
         try {
             tx.begin();
             Lector lector = em.find(Lector.class, idLector);
             if (lector != null) {
-                // Si el lector tiene préstamos registrados, no podemos borrarlo
-                // La credencial SÍ se borrará automáticamente gracias al CascadeType.ALL
-                // definido en la relación @OneToOne de la clase Lector
                 long prestamos = (long) em.createQuery(
                         "SELECT COUNT(p) FROM Prestamo p WHERE p.lector.idLector = :id")
                         .setParameter("id", idLector)
@@ -75,20 +51,10 @@ public class LectorController {
     }
 
     public List<Lector> listarLectores() {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT l FROM Lector l", Lector.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return listar();
     }
 
     public Lector buscarPorId(int idLector) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.find(Lector.class, idLector);
-        } finally {
-            em.close();
-        }
+        return super.buscarPorId(idLector);
     }
 }

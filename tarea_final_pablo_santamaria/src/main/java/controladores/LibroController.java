@@ -1,55 +1,32 @@
 package controladores;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import modelos.entidades.Libro;
-import utilidades.JPAUtil;
 
 import java.util.List;
 
-public class LibroController {
+public class LibroController extends AbstractCrudController<Libro, Integer> {
+
+    public LibroController() {
+        super(Libro.class);
+    }
 
     public void insertarLibro(Libro libro) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.persist(libro);
-            tx.commit();
-            System.out.println("Libro insertado");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        insertar(libro);
+        System.out.println("Libro insertado");
     }
 
     public void actualizarLibro(Libro libro) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.merge(libro);
-            tx.commit();
-            System.out.println("Libro actualizado");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
+        actualizar(libro);
+        System.out.println("Libro actualizado");
     }
 
     public void borrarLibro(int idLibro) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        var em = utilidades.JPAUtil.getEntityManager();
+        var tx = em.getTransaction();
         try {
             tx.begin();
             Libro libro = em.find(Libro.class, idLibro);
             if (libro != null) {
-                // Bloqueamos el borrado si el libro tiene préstamos activos (aún no devueltos)
-                // Un préstamo activo tiene fecha_fin = null
                 long prestamosActivos = (long) em.createQuery(
                         "SELECT COUNT(p) FROM Prestamo p WHERE p.libro.idLibro = :id AND p.fechaFin IS NULL")
                         .setParameter("id", idLibro)
@@ -57,9 +34,8 @@ public class LibroController {
                 if (prestamosActivos > 0) {
                     throw new IllegalStateException(
                             "No se puede eliminar: el libro tiene "
-                            + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
+                                    + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
                 }
-                // Borramos los préstamos históricos (ya devueltos) para no violar la clave foránea
                 em.createQuery("DELETE FROM Prestamo p WHERE p.libro.idLibro = :id")
                         .setParameter("id", idLibro)
                         .executeUpdate();
@@ -79,20 +55,10 @@ public class LibroController {
     }
 
     public List<Libro> listarLibros() {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT l FROM Libro l", Libro.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return listar();
     }
 
     public Libro buscarPorId(int idLibro) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.find(Libro.class, idLibro);
-        } finally {
-            em.close();
-        }
+        return super.buscarPorId(idLibro);
     }
 }

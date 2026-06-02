@@ -77,41 +77,25 @@ public class AutorFrame extends JFrame {
     }
 
     private void insertar() {
-        JTextField txtId     = new JTextField();
+        JTextField txtId = new JTextField();
         JTextField txtNombre = new JTextField();
-        JTextField txtAp1    = new JTextField();
-        JTextField txtAp2    = new JTextField();
-        JTextField txtNac    = new JTextField();
+        JTextField txtAp1 = new JTextField();
+        JTextField txtAp2 = new JTextField();
+        JTextField txtNac = new JTextField();
 
-        JPanel panel = new JPanel(new GridLayout(5, 2, 5, 5));
-        panel.add(new JLabel("ID:"));                      panel.add(txtId);
-        panel.add(new JLabel("Nombre:"));                  panel.add(txtNombre);
-        panel.add(new JLabel("Apellido 1:"));              panel.add(txtAp1);
-        panel.add(new JLabel("Apellido 2 (opcional):"));   panel.add(txtAp2);
-        panel.add(new JLabel("Nacionalidad:"));            panel.add(txtNac);
+        String[] labels = {"ID:", "Nombre:", "Apellido 1:", "Apellido 2 (opcional):", "Nacionalidad:"};
+        JTextField[] fields = {txtId, txtNombre, txtAp1, txtAp2, txtNac};
 
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Insertar Autor", JOptionPane.OK_CANCEL_OPTION);
-        if (resultado != JOptionPane.OK_OPTION) {
-            return;
-        }
+        int resultado = Dialogs.showForm(this, "Insertar Autor", labels, fields);
+        if (resultado != JOptionPane.OK_OPTION) return;
+
         try {
             Autor a = new Autor();
             a.setIdAutor(Integer.parseInt(txtId.getText().trim()));
             a.setNombre(txtNombre.getText().trim());
             a.setApellido1(txtAp1.getText().trim());
-
-            // Si el campo está vacío guardamos null; si tiene valor, lo guardamos
-            if (txtAp2.getText().isBlank()) {
-                a.setApellido2(null);
-            } else {
-                a.setApellido2(txtAp2.getText().trim());
-            }
-
-            if (txtNac.getText().isBlank()) {
-                a.setNacionalidad(null);
-            } else {
-                a.setNacionalidad(txtNac.getText().trim());
-            }
+            a.setApellido2(Dialogs.textOrNull(txtAp2));
+            a.setNacionalidad(Dialogs.textOrNull(txtNac));
 
             controller.insertarAutor(a);
             JOptionPane.showMessageDialog(this, "Autor insertado correctamente");
@@ -139,49 +123,20 @@ public class AutorFrame extends JFrame {
 
             // Pre-rellenamos con los valores actuales (null lo tratamos como cadena vacía)
             JTextField txtNombre = new JTextField(a.getNombre());
-            JTextField txtAp1    = new JTextField(a.getApellido1());
+            JTextField txtAp1 = new JTextField(a.getApellido1());
+            JTextField txtAp2 = new JTextField(a.getApellido2() == null ? "" : a.getApellido2());
+            JTextField txtNac = new JTextField(a.getNacionalidad() == null ? "" : a.getNacionalidad());
 
-            String valorAp2;
-            if (a.getApellido2() != null) {
-                valorAp2 = a.getApellido2();
-            } else {
-                valorAp2 = "";
-            }
-            JTextField txtAp2 = new JTextField(valorAp2);
+            String[] labels = {"Nombre:", "Apellido 1:", "Apellido 2:", "Nacionalidad:"};
+            JTextField[] fields = {txtNombre, txtAp1, txtAp2, txtNac};
 
-            String valorNac;
-            if (a.getNacionalidad() != null) {
-                valorNac = a.getNacionalidad();
-            } else {
-                valorNac = "";
-            }
-            JTextField txtNac = new JTextField(valorNac);
-
-            JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-            panel.add(new JLabel("Nombre:"));      panel.add(txtNombre);
-            panel.add(new JLabel("Apellido 1:"));  panel.add(txtAp1);
-            panel.add(new JLabel("Apellido 2:"));  panel.add(txtAp2);
-            panel.add(new JLabel("Nacionalidad:")); panel.add(txtNac);
-
-            int resultado = JOptionPane.showConfirmDialog(this, panel, "Actualizar Autor", JOptionPane.OK_CANCEL_OPTION);
-            if (resultado != JOptionPane.OK_OPTION) {
-                return;
-            }
+            int resultado = Dialogs.showForm(this, "Actualizar Autor", labels, fields);
+            if (resultado != JOptionPane.OK_OPTION) return;
 
             a.setNombre(txtNombre.getText().trim());
             a.setApellido1(txtAp1.getText().trim());
-
-            if (txtAp2.getText().isBlank()) {
-                a.setApellido2(null);
-            } else {
-                    a.setApellido2(txtAp2.getText().trim());
-            }
-
-            if (txtNac.getText().isBlank()) {
-                a.setNacionalidad(null);
-            } else {
-                a.setNacionalidad(txtNac.getText().trim());
-            }
+            a.setApellido2(Dialogs.textOrNull(txtAp2));
+            a.setNacionalidad(Dialogs.textOrNull(txtNac));
 
             controller.actualizarAutor(a);
             JOptionPane.showMessageDialog(this, "Autor actualizado correctamente");
