@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class Dialogs {
 
-    public static int showForm(Component parent, String title, String[] labels, JTextField[] fields) {
+    public static int showForm(Component parent, String title, String[] labels, Component[] fields) {
         JPanel panel = new JPanel(new GridLayout(labels.length, 2, 5, 5));
         for (int i = 0; i < labels.length; i++) {
             panel.add(new JLabel(labels[i]));

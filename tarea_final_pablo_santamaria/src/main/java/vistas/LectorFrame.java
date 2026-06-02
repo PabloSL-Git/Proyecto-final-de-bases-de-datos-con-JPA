@@ -96,75 +96,12 @@ public class LectorFrame extends JFrame {
 
     private void insertar() {
         List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
-        if (bibliotecas.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No hay bibliotecas disponibles. Inserta una primero.");
-            return;
-        }
-
-        // Construimos el array de opciones para el desplegable en formato "id - nombre"
-        String[] opcionesBiblioteca = new String[bibliotecas.size()];
-        for (int i = 0; i < bibliotecas.size(); i++) {
-            Biblioteca b = bibliotecas.get(i);
-            opcionesBiblioteca[i] = b.getIdBiblioteca() + " - " + b.getNombre();
-        }
-
-        JTextField txtId     = new JTextField();
-        JTextField txtNombre = new JTextField();
-        JTextField txtAp1    = new JTextField();
-        JTextField txtAp2    = new JTextField();
-        JTextField txtEmail  = new JTextField();
-        JTextField txtTel    = new JTextField();
-        JComboBox<String> cmbBiblioteca = new JComboBox<>(opcionesBiblioteca);
-
-        JPanel panel = new JPanel(new GridLayout(7, 2, 5, 5));
-        panel.add(new JLabel("ID:"));                      panel.add(txtId);
-        panel.add(new JLabel("Nombre:"));                  panel.add(txtNombre);
-        panel.add(new JLabel("Apellido 1:"));              panel.add(txtAp1);
-        panel.add(new JLabel("Apellido 2 (opcional):"));   panel.add(txtAp2);
-        panel.add(new JLabel("Email:"));                   panel.add(txtEmail);
-        panel.add(new JLabel("Teléfono:"));                panel.add(txtTel);
-        panel.add(new JLabel("Biblioteca:"));              panel.add(cmbBiblioteca);
-
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Insertar Lector", JOptionPane.OK_CANCEL_OPTION);
-        if (resultado != JOptionPane.OK_OPTION) {
-            return;
-        }
+        Lector l = LectorDialogs.showInsert(this, bibliotecas);
+        if (l == null) return;
         try {
-            // Extraemos el ID de la opción seleccionada ("3 - Biblioteca Sur" → ID 3)
-            String textoBiblioteca = (String) cmbBiblioteca.getSelectedItem();
-            String[] partesBiblioteca = textoBiblioteca.split(" - ");
-            int idBiblioteca = Integer.parseInt(partesBiblioteca[0]);
-
-            Lector l = new Lector();
-            l.setIdLector(Integer.parseInt(txtId.getText().trim()));
-            l.setNombre(txtNombre.getText().trim());
-            l.setApellido1(txtAp1.getText().trim());
-
-            if (txtAp2.getText().isBlank()) {
-                l.setApellido2(null);
-            } else {
-                l.setApellido2(txtAp2.getText().trim());
-            }
-
-            if (txtEmail.getText().isBlank()) {
-                l.setEmail(null);
-            } else {
-                l.setEmail(txtEmail.getText().trim());
-            }
-
-            if (txtTel.getText().isBlank()) {
-                l.setTelefono(null);
-            } else {
-                l.setTelefono(txtTel.getText().trim());
-            }
-
-            l.setBiblioteca(bibliotecaController.buscarPorId(idBiblioteca));
-
             controller.insertarLector(l);
             JOptionPane.showMessageDialog(this, "Lector insertado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al insertar lector");
             ex.printStackTrace();
@@ -185,69 +122,9 @@ public class LectorFrame extends JFrame {
             }
 
             List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
-            String[] opcionesBiblioteca = new String[bibliotecas.size()];
-            for (int i = 0; i < bibliotecas.size(); i++) {
-                Biblioteca b = bibliotecas.get(i);
-                opcionesBiblioteca[i] = b.getIdBiblioteca() + " - " + b.getNombre();
-            }
-            JComboBox<String> cmbBiblioteca = new JComboBox<>(opcionesBiblioteca);
-
-            // Pre-seleccionamos la biblioteca actual del lector
-            // Buscamos la opción cuyo inicio coincida con el ID de la biblioteca actual
-            if (l.getBiblioteca() != null) {
-                String prefijoBuscado = l.getBiblioteca().getIdBiblioteca() + " - ";
-                for (int i = 0; i < cmbBiblioteca.getItemCount(); i++) {
-                    String opcion = (String) cmbBiblioteca.getItemAt(i);
-                    if (opcion.startsWith(prefijoBuscado)) {
-                        cmbBiblioteca.setSelectedIndex(i);
-                        break;
-                    }
-                }
-            }
-
-            // Pre-rellenamos los campos de texto con los valores actuales
-            JTextField txtNombre = new JTextField(l.getNombre());
-            JTextField txtAp1    = new JTextField(l.getApellido1());
-
-            String valorAp2;
-            if (l.getApellido2() != null) { valorAp2 = l.getApellido2(); } else { valorAp2 = ""; }
-            JTextField txtAp2 = new JTextField(valorAp2);
-
-            String valorEmail;
-            if (l.getEmail() != null) { valorEmail = l.getEmail(); } else { valorEmail = ""; }
-            JTextField txtEmail = new JTextField(valorEmail);
-
-            String valorTel;
-            if (l.getTelefono() != null) { valorTel = l.getTelefono(); } else { valorTel = ""; }
-            JTextField txtTel = new JTextField(valorTel);
-
-            JPanel panel = new JPanel(new GridLayout(6, 2, 5, 5));
-            panel.add(new JLabel("Nombre:"));      panel.add(txtNombre);
-            panel.add(new JLabel("Apellido 1:"));  panel.add(txtAp1);
-            panel.add(new JLabel("Apellido 2:"));  panel.add(txtAp2);
-            panel.add(new JLabel("Email:"));       panel.add(txtEmail);
-            panel.add(new JLabel("Teléfono:"));    panel.add(txtTel);
-            panel.add(new JLabel("Biblioteca:"));  panel.add(cmbBiblioteca);
-
-            int resultado = JOptionPane.showConfirmDialog(this, panel, "Actualizar Lector", JOptionPane.OK_CANCEL_OPTION);
-            if (resultado != JOptionPane.OK_OPTION) {
-                return;
-            }
-
-            String textoBiblioteca = (String) cmbBiblioteca.getSelectedItem();
-            String[] partesBiblioteca = textoBiblioteca.split(" - ");
-            int idBiblioteca = Integer.parseInt(partesBiblioteca[0]);
-
-            l.setNombre(txtNombre.getText().trim());
-            l.setApellido1(txtAp1.getText().trim());
-
-            if (txtAp2.getText().isBlank()) { l.setApellido2(null); } else { l.setApellido2(txtAp2.getText().trim()); }
-            if (txtEmail.getText().isBlank()) { l.setEmail(null); } else { l.setEmail(txtEmail.getText().trim()); }
-            if (txtTel.getText().isBlank()) { l.setTelefono(null); } else { l.setTelefono(txtTel.getText().trim()); }
-
-            l.setBiblioteca(bibliotecaController.buscarPorId(idBiblioteca));
-
-            controller.actualizarLector(l);
+            Lector updated = LectorDialogs.showUpdate(this, l, bibliotecas);
+            if (updated == null) return;
+            controller.actualizarLector(updated);
             JOptionPane.showMessageDialog(this, "Lector actualizado correctamente");
             listar();
         } catch (NumberFormatException ex) {

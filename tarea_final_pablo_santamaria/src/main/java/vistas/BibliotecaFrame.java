@@ -63,30 +63,12 @@ public class BibliotecaFrame extends JFrame {
     }
 
     private void insertar() {
-        JTextField txtId        = new JTextField();
-        JTextField txtNombre    = new JTextField();
-        JTextField txtDireccion = new JTextField();
-
-        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
-        panel.add(new JLabel("ID:"));         panel.add(txtId);
-        panel.add(new JLabel("Nombre:"));     panel.add(txtNombre);
-        panel.add(new JLabel("Dirección:"));  panel.add(txtDireccion);
-
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Insertar Biblioteca", JOptionPane.OK_CANCEL_OPTION);
-        if (resultado != JOptionPane.OK_OPTION) {
-            return;
-        }
+        Biblioteca b = BibliotecaDialogs.showInsert(this);
+        if (b == null) return;
         try {
-            Biblioteca b = new Biblioteca();
-            b.setIdBiblioteca(Integer.parseInt(txtId.getText().trim()));
-            b.setNombre(txtNombre.getText().trim());
-            b.setDireccion(txtDireccion.getText().trim());
-
             controller.insertarBiblioteca(b);
             JOptionPane.showMessageDialog(this, "Biblioteca insertada correctamente");
             listar();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al insertar biblioteca");
             ex.printStackTrace();
@@ -105,21 +87,9 @@ public class BibliotecaFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Biblioteca no encontrada");
                 return;
             }
-            JTextField txtNombre    = new JTextField(b.getNombre() != null ? b.getNombre() : "");
-            JTextField txtDireccion = new JTextField(b.getDireccion() != null ? b.getDireccion() : "");
-
-            JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5));
-            panel.add(new JLabel("Nombre:"));    panel.add(txtNombre);
-            panel.add(new JLabel("Dirección:")); panel.add(txtDireccion);
-
-            int resultado = JOptionPane.showConfirmDialog(this, panel, "Actualizar Biblioteca", JOptionPane.OK_CANCEL_OPTION);
-            if (resultado != JOptionPane.OK_OPTION) {
-                return;
-            }
-            b.setNombre(txtNombre.getText().trim());
-            b.setDireccion(txtDireccion.getText().trim());
-
-            controller.actualizarBiblioteca(b);
+            Biblioteca updated = BibliotecaDialogs.showUpdate(this, b);
+            if (updated == null) return;
+            controller.actualizarBiblioteca(updated);
             JOptionPane.showMessageDialog(this, "Biblioteca actualizada correctamente");
             listar();
         } catch (NumberFormatException ex) {

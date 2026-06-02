@@ -77,31 +77,12 @@ public class AutorFrame extends JFrame {
     }
 
     private void insertar() {
-        JTextField txtId = new JTextField();
-        JTextField txtNombre = new JTextField();
-        JTextField txtAp1 = new JTextField();
-        JTextField txtAp2 = new JTextField();
-        JTextField txtNac = new JTextField();
-
-        String[] labels = {"ID:", "Nombre:", "Apellido 1:", "Apellido 2 (opcional):", "Nacionalidad:"};
-        JTextField[] fields = {txtId, txtNombre, txtAp1, txtAp2, txtNac};
-
-        int resultado = Dialogs.showForm(this, "Insertar Autor", labels, fields);
-        if (resultado != JOptionPane.OK_OPTION) return;
-
+        Autor a = AutorDialogs.showInsert(this);
+        if (a == null) return;
         try {
-            Autor a = new Autor();
-            a.setIdAutor(Integer.parseInt(txtId.getText().trim()));
-            a.setNombre(txtNombre.getText().trim());
-            a.setApellido1(txtAp1.getText().trim());
-            a.setApellido2(Dialogs.textOrNull(txtAp2));
-            a.setNacionalidad(Dialogs.textOrNull(txtNac));
-
             controller.insertarAutor(a);
             JOptionPane.showMessageDialog(this, "Autor insertado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al insertar autor");
             ex.printStackTrace();
@@ -122,23 +103,9 @@ public class AutorFrame extends JFrame {
             }
 
             // Pre-rellenamos con los valores actuales (null lo tratamos como cadena vacía)
-            JTextField txtNombre = new JTextField(a.getNombre());
-            JTextField txtAp1 = new JTextField(a.getApellido1());
-            JTextField txtAp2 = new JTextField(a.getApellido2() == null ? "" : a.getApellido2());
-            JTextField txtNac = new JTextField(a.getNacionalidad() == null ? "" : a.getNacionalidad());
-
-            String[] labels = {"Nombre:", "Apellido 1:", "Apellido 2:", "Nacionalidad:"};
-            JTextField[] fields = {txtNombre, txtAp1, txtAp2, txtNac};
-
-            int resultado = Dialogs.showForm(this, "Actualizar Autor", labels, fields);
-            if (resultado != JOptionPane.OK_OPTION) return;
-
-            a.setNombre(txtNombre.getText().trim());
-            a.setApellido1(txtAp1.getText().trim());
-            a.setApellido2(Dialogs.textOrNull(txtAp2));
-            a.setNacionalidad(Dialogs.textOrNull(txtNac));
-
-            controller.actualizarAutor(a);
+            Autor updated = AutorDialogs.showUpdate(this, a);
+            if (updated == null) return;
+            controller.actualizarAutor(updated);
             JOptionPane.showMessageDialog(this, "Autor actualizado correctamente");
             listar();
         } catch (NumberFormatException ex) {

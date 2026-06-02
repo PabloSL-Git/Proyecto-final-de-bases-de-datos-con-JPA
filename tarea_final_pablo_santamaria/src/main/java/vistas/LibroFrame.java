@@ -79,9 +79,16 @@ public class LibroFrame extends JFrame {
     }
 
     private void abrirInsertar() {
-        // Abrimos el diálogo de inserción; al cerrarse, refrescamos la lista
-        new InsertarLibroDialog(this).setVisible(true);
-        listar();
+        Libro l = LibroDialogs.showInsert(this);
+        if (l == null) return;
+        try {
+            controller.insertarLibro(l);
+            JOptionPane.showMessageDialog(this, "Libro insertado correctamente");
+            listar();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al insertar libro");
+            ex.printStackTrace();
+        }
     }
 
     private void abrirActualizar() {
@@ -96,8 +103,10 @@ public class LibroFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Libro no encontrado");
                 return;
             }
-            // Abrimos el diálogo de actualización pasándole el libro encontrado
-            new ActualizarLibroDialog(this, libro).setVisible(true);
+            Libro updated = LibroDialogs.showUpdate(this, libro);
+            if (updated == null) return;
+            controller.actualizarLibro(updated);
+            JOptionPane.showMessageDialog(this, "Libro actualizado correctamente");
             listar();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");

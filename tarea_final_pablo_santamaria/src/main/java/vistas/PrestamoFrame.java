@@ -10,7 +10,6 @@ import modelos.entidades.Prestamo;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,46 +127,12 @@ public class PrestamoFrame extends JFrame {
             opcionesLibro[i] = l.getIdLibro() + " - " + l.getTitulo();
         }
 
-        JTextField txtId    = new JTextField();
-        JTextField txtFecha = new JTextField(LocalDate.now().toString()); // Fecha de hoy por defecto
-        JComboBox<String> cmbLector = new JComboBox<>(opcionesLector);
-        JComboBox<String> cmbLibro  = new JComboBox<>(opcionesLibro);
-
-        JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
-        panel.add(new JLabel("ID préstamo:"));               panel.add(txtId);
-        panel.add(new JLabel("Fecha inicio (yyyy-mm-dd):")); panel.add(txtFecha);
-        panel.add(new JLabel("Lector:"));                    panel.add(cmbLector);
-        panel.add(new JLabel("Libro (solo disponibles):"));  panel.add(cmbLibro);
-
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Nuevo Préstamo", JOptionPane.OK_CANCEL_OPTION);
-        if (resultado != JOptionPane.OK_OPTION) {
-            return;
-        }
+        Prestamo p = PrestamoDialogs.showInsert(this, lectores, librosDisponibles);
+        if (p == null) return;
         try {
-            // Extraemos el ID del lector del texto seleccionado ("1 - Juan Perez" → ID 1)
-            String textoLector = (String) cmbLector.getSelectedItem();
-            String[] partesLector = textoLector.split(" - ");
-            int idLector = Integer.parseInt(partesLector[0]);
-
-            // Extraemos el ID del libro del texto seleccionado ("2 - El Hobbit" → ID 2)
-            String textoLibro = (String) cmbLibro.getSelectedItem();
-            String[] partesLibro = textoLibro.split(" - ");
-            int idLibro = Integer.parseInt(partesLibro[0]);
-
-            Prestamo p = new Prestamo();
-            p.setIdPrestamo(Integer.parseInt(txtId.getText().trim()));
-            p.setFechaInicio(LocalDate.parse(txtFecha.getText().trim()));
-            p.setFechaFin(null); // null = préstamo activo, sin fecha de devolución todavía
-            p.setLector(lectorController.buscarPorId(idLector));
-            p.setLibro(libroController.buscarPorId(idLibro));
-
             controller.insertarPrestamo(p);
             JOptionPane.showMessageDialog(this, "Préstamo creado. El libro ahora está marcado como 'prestado'.");
             listar();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Formato de fecha inválido. Usa: yyyy-mm-dd");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al crear préstamo");
             ex.printStackTrace();
