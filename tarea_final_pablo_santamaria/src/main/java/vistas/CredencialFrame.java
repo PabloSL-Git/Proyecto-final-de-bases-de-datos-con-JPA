@@ -58,13 +58,19 @@ public class CredencialFrame extends JFrame {
             textArea.append("No hay credenciales registradas.\n");
             return;
         }
-        for (Credencial c : credenciales) {
+        for (Credencial credencial : credenciales) {
             String fechaEmision = "-";
-            if (c.getFechaEmision() != null) fechaEmision = c.getFechaEmision().toString();
+            if (credencial.getFechaEmision() != null) {
+                fechaEmision = credencial.getFechaEmision().toString();
+            }
+
             String lector = "-";
-            if (c.getLector() != null) lector = c.getLector().getNombre() + " " + c.getLector().getApellido1();
-            textArea.append("ID: " + c.getIdCredencial()
-                    + " | Tarjeta: " + c.getNumeroTarjeta()
+            if (credencial.getLector() != null) {
+                lector = credencial.getLector().getNombre() + " " + credencial.getLector().getApellido1();
+            }
+
+            textArea.append("ID: " + credencial.getIdCredencial()
+                    + " | Tarjeta: " + credencial.getNumeroTarjeta()
                     + " | Emisión: " + fechaEmision
                     + " | Lector: " + lector + "\n");
         }
@@ -72,15 +78,18 @@ public class CredencialFrame extends JFrame {
 
     private void insertar() {
         List<Lector> lectores = lectorController.listarLectores();
-        Credencial c = CredencialDialogs.showInsert(this, lectores);
-        if (c == null) return;
+        Credencial credencial = CredencialDialogs.showInsert(this, lectores);
+        if (credencial == null) {
+            return;
+        }
+
         try {
-            controller.insertarCredencial(c);
+            controller.insertarCredencial(credencial);
             JOptionPane.showMessageDialog(this, "Credencial insertada correctamente");
             listar();
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al insertar credencial");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -91,23 +100,27 @@ public class CredencialFrame extends JFrame {
         }
         try {
             int id = Integer.parseInt(input.trim());
-            Credencial c = controller.buscarPorId(id);
-            if (c == null) {
+            Credencial credencial = controller.buscarPorId(id);
+            if (credencial == null) {
                 JOptionPane.showMessageDialog(this, "Credencial no encontrada");
                 return;
             }
-            Credencial updated = CredencialDialogs.showUpdate(this, c);
-            if (updated == null) return;
-            controller.actualizarCredencial(updated);
+
+            Credencial updatedCredencial = CredencialDialogs.showUpdate(this, credencial);
+            if (updatedCredencial == null) {
+                return;
+            }
+
+            controller.actualizarCredencial(updatedCredencial);
             JOptionPane.showMessageDialog(this, "Credencial actualizada correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (DateTimeParseException ex) {
+        } catch (DateTimeParseException excepcionFecha) {
             JOptionPane.showMessageDialog(this, "Formato de fecha inválido. Usa: yyyy-mm-dd");
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al actualizar credencial");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -121,11 +134,11 @@ public class CredencialFrame extends JFrame {
             controller.borrarCredencial(id);
             JOptionPane.showMessageDialog(this, "Credencial eliminada correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (Exception e) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar credencial");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 }

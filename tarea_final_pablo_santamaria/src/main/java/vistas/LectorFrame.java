@@ -57,37 +57,36 @@ public class LectorFrame extends JFrame {
             textArea.append("No hay lectores registrados.\n");
             return;
         }
-        for (Lector l : lectores) {
+        for (Lector lector : lectores) {
             String apellido2;
-            if (l.getApellido2() != null) {
-                apellido2 = " " + l.getApellido2();
+            if (lector.getApellido2() != null) {
+                apellido2 = " " + lector.getApellido2();
             } else {
                 apellido2 = "";
             }
-
             String email;
-            if (l.getEmail() != null) {
-                email = l.getEmail();
+            if (lector.getEmail() != null) {
+                email = lector.getEmail();
             } else {
                 email = "-";
             }
 
             String telefono;
-            if (l.getTelefono() != null) {
-                telefono = l.getTelefono();
+            if (lector.getTelefono() != null) {
+                telefono = lector.getTelefono();
             } else {
                 telefono = "-";
             }
 
             String nombreBiblioteca;
-            if (l.getBiblioteca() != null) {
-                nombreBiblioteca = l.getBiblioteca().getNombre();
+            if (lector.getBiblioteca() != null) {
+                nombreBiblioteca = lector.getBiblioteca().getNombre();
             } else {
                 nombreBiblioteca = "-";
             }
 
-            textArea.append("ID: " + l.getIdLector()
-                    + " | " + l.getNombre() + " " + l.getApellido1() + apellido2
+            textArea.append("ID: " + lector.getIdLector()
+                    + " | " + lector.getNombre() + " " + lector.getApellido1() + apellido2
                     + " | Email: " + email
                     + " | Tel: " + telefono
                     + " | Biblioteca: " + nombreBiblioteca + "\n");
@@ -96,15 +95,18 @@ public class LectorFrame extends JFrame {
 
     private void insertar() {
         List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
-        Lector l = LectorDialogs.showInsert(this, bibliotecas);
-        if (l == null) return;
+        Lector lector = LectorDialogs.showInsert(this, bibliotecas);
+        if (lector == null) {
+            return;
+        }
+
         try {
-            controller.insertarLector(l);
+            controller.insertarLector(lector);
             JOptionPane.showMessageDialog(this, "Lector insertado correctamente");
             listar();
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al insertar lector");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -115,23 +117,26 @@ public class LectorFrame extends JFrame {
         }
         try {
             int id = Integer.parseInt(input.trim());
-            Lector l = controller.buscarPorId(id);
-            if (l == null) {
+            Lector lector = controller.buscarPorId(id);
+            if (lector == null) {
                 JOptionPane.showMessageDialog(this, "Lector no encontrado");
                 return;
             }
 
             List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
-            Lector updated = LectorDialogs.showUpdate(this, l, bibliotecas);
-            if (updated == null) return;
+            Lector updated = LectorDialogs.showUpdate(this, lector, bibliotecas);
+            if (updated == null) {
+                return;
+            }
+
             controller.actualizarLector(updated);
             JOptionPane.showMessageDialog(this, "Lector actualizado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al actualizar lector");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -145,13 +150,13 @@ public class LectorFrame extends JFrame {
             controller.borrarLector(id);
             JOptionPane.showMessageDialog(this, "Lector eliminado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (IllegalStateException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) {
+        } catch (IllegalStateException excepcionEstado) {
+            JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar lector");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 }

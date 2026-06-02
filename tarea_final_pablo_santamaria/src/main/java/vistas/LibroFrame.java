@@ -41,10 +41,10 @@ public class LibroFrame extends JFrame {
         panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
         add(panel);
 
-        btnListar.addActionListener(e -> listar());
-        btnInsertar.addActionListener(e -> abrirInsertar());
-        btnActualizar.addActionListener(e -> abrirActualizar());
-        btnEliminar.addActionListener(e -> eliminar());
+        btnListar.addActionListener(evento -> listar());
+        btnInsertar.addActionListener(evento -> abrirInsertar());
+        btnActualizar.addActionListener(evento -> abrirActualizar());
+        btnEliminar.addActionListener(evento -> eliminar());
     }
 
     private void listar() {
@@ -54,40 +54,43 @@ public class LibroFrame extends JFrame {
             textArea.append("No hay libros registrados.\n");
             return;
         }
-        for (Libro l : libros) {
+        for (Libro libro : libros) {
             String nombreAutor;
-            if (l.getAutor() != null) {
-                nombreAutor = l.getAutor().getNombre() + " " + l.getAutor().getApellido1();
+            if (libro.getAutor() != null) {
+                nombreAutor = libro.getAutor().getNombre() + " " + libro.getAutor().getApellido1();
             } else {
                 nombreAutor = "-";
             }
 
             String nombreBiblioteca;
-            if (l.getBiblioteca() != null) {
-                nombreBiblioteca = l.getBiblioteca().getNombre();
+            if (libro.getBiblioteca() != null) {
+                nombreBiblioteca = libro.getBiblioteca().getNombre();
             } else {
                 nombreBiblioteca = "-";
             }
 
-            textArea.append("ID: " + l.getIdLibro()
-                    + " | " + l.getTitulo()
-                    + " (" + l.getAnioPublicacion() + ")"
-                    + " | Estado: " + l.getEstado()
+            textArea.append("ID: " + libro.getIdLibro()
+                    + " | " + libro.getTitulo()
+                    + " (" + libro.getAnioPublicacion() + ")"
+                    + " | Estado: " + libro.getEstado()
                     + " | Autor: " + nombreAutor
                     + " | Biblioteca: " + nombreBiblioteca + "\n");
         }
     }
 
     private void abrirInsertar() {
-        Libro l = LibroDialogs.showInsert(this);
-        if (l == null) return;
+        Libro libro = LibroDialogs.showInsert(this);
+        if (libro == null) {
+            return;
+        }
+
         try {
-            controller.insertarLibro(l);
+            controller.insertarLibro(libro);
             JOptionPane.showMessageDialog(this, "Libro insertado correctamente");
             listar();
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al insertar libro");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -103,12 +106,14 @@ public class LibroFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Libro no encontrado");
                 return;
             }
-            Libro updated = LibroDialogs.showUpdate(this, libro);
-            if (updated == null) return;
-            controller.actualizarLibro(updated);
+            Libro libroActualizado = LibroDialogs.showUpdate(this, libro);
+            if (libroActualizado == null) {
+                return;
+            }
+            controller.actualizarLibro(libroActualizado);
             JOptionPane.showMessageDialog(this, "Libro actualizado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         }
     }
@@ -123,14 +128,14 @@ public class LibroFrame extends JFrame {
             controller.borrarLibro(id);
             JOptionPane.showMessageDialog(this, "Libro eliminado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException excepcionEstado) {
             // El controlador lanza esta excepción si el libro tiene préstamos activos
-            JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar libro");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 }

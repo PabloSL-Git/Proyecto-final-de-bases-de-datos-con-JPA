@@ -49,10 +49,10 @@ public class PrestamoFrame extends JFrame {
         panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
         add(panel);
 
-        btnListar.addActionListener(e -> listar());
-        btnNuevo.addActionListener(e -> nuevoPrestamo());
-        btnDevolucion.addActionListener(e -> registrarDevolucion());
-        btnEliminar.addActionListener(e -> eliminar());
+        btnListar.addActionListener(evento -> listar());
+        btnNuevo.addActionListener(evento -> nuevoPrestamo());
+        btnDevolucion.addActionListener(evento -> registrarDevolucion());
+        btnEliminar.addActionListener(evento -> eliminar());
     }
 
     private void listar() {
@@ -62,33 +62,33 @@ public class PrestamoFrame extends JFrame {
             textArea.append("No hay préstamos registrados.\n");
             return;
         }
-        for (Prestamo p : prestamos) {
+        for (Prestamo prestamo : prestamos) {
             String nombreLector;
-            if (p.getLector() != null) {
-                nombreLector = p.getLector().getNombre() + " " + p.getLector().getApellido1();
+            if (prestamo.getLector() != null) {
+                nombreLector = prestamo.getLector().getNombre() + " " + prestamo.getLector().getApellido1();
             } else {
                 nombreLector = "-";
             }
 
             String tituloLibro;
-            if (p.getLibro() != null) {
-                tituloLibro = p.getLibro().getTitulo();
+            if (prestamo.getLibro() != null) {
+                tituloLibro = prestamo.getLibro().getTitulo();
             } else {
                 tituloLibro = "-";
             }
 
             // Si fecha_fin es null el préstamo está activo; si tiene fecha, ya fue devuelto
             String estadoPrestamo;
-            if (p.getFechaFin() == null) {
+            if (prestamo.getFechaFin() == null) {
                 estadoPrestamo = "ACTIVO";
             } else {
-                estadoPrestamo = "Devuelto el " + p.getFechaFin();
+                estadoPrestamo = "Devuelto el " + prestamo.getFechaFin();
             }
 
-            textArea.append("ID: " + p.getIdPrestamo()
+            textArea.append("ID: " + prestamo.getIdPrestamo()
                     + " | Lector: " + nombreLector
                     + " | Libro: " + tituloLibro
-                    + " | Inicio: " + p.getFechaInicio()
+                    + " | Inicio: " + prestamo.getFechaInicio()
                     + " | Estado: " + estadoPrestamo + "\n");
         }
     }
@@ -117,25 +117,28 @@ public class PrestamoFrame extends JFrame {
 
         String[] opcionesLector = new String[lectores.size()];
         for (int i = 0; i < lectores.size(); i++) {
-            Lector l = lectores.get(i);
-            opcionesLector[i] = l.getIdLector() + " - " + l.getNombre() + " " + l.getApellido1();
+            Lector lector = lectores.get(i);
+            opcionesLector[i] = lector.getIdLector() + " - " + lector.getNombre() + " " + lector.getApellido1();
         }
 
         String[] opcionesLibro = new String[librosDisponibles.size()];
         for (int i = 0; i < librosDisponibles.size(); i++) {
-            Libro l = librosDisponibles.get(i);
-            opcionesLibro[i] = l.getIdLibro() + " - " + l.getTitulo();
+            Libro libro = librosDisponibles.get(i);
+            opcionesLibro[i] = libro.getIdLibro() + " - " + libro.getTitulo();
         }
 
-        Prestamo p = PrestamoDialogs.showInsert(this, lectores, librosDisponibles);
-        if (p == null) return;
+        Prestamo prestamo = PrestamoDialogs.showInsert(this, lectores, librosDisponibles);
+        if (prestamo == null) {
+            return;
+        }
+
         try {
-            controller.insertarPrestamo(p);
+            controller.insertarPrestamo(prestamo);
             JOptionPane.showMessageDialog(this, "Préstamo creado. El libro ahora está marcado como 'prestado'.");
             listar();
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al crear préstamo");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -167,11 +170,11 @@ public class PrestamoFrame extends JFrame {
             controller.actualizarPrestamo(p);
             JOptionPane.showMessageDialog(this, "Devolución registrada. El libro ahora está 'disponible'.");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (Exception e) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al registrar devolución");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -185,11 +188,11 @@ public class PrestamoFrame extends JFrame {
             controller.borrarPrestamo(id);
             JOptionPane.showMessageDialog(this, "Préstamo eliminado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (Exception e) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar préstamo");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 }

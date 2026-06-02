@@ -17,8 +17,8 @@ public class LectorDialogs {
 
         String[] opcionesBiblioteca = new String[bibliotecas.size()];
         for (int i = 0; i < bibliotecas.size(); i++) {
-            Biblioteca b = bibliotecas.get(i);
-            opcionesBiblioteca[i] = b.getIdBiblioteca() + " - " + b.getNombre();
+            Biblioteca biblioteca = bibliotecas.get(i);
+            opcionesBiblioteca[i] = biblioteca.getIdBiblioteca() + " - " + biblioteca.getNombre();
         }
 
         JTextField txtId = new JTextField();
@@ -32,33 +32,38 @@ public class LectorDialogs {
         String[] labels = {"ID:", "Nombre:", "Apellido 1:", "Apellido 2 (opcional):", "Email:", "Teléfono:", "Biblioteca:"};
         Component[] fields = {txtId, txtNombre, txtAp1, txtAp2, txtEmail, txtTel, cmbBiblioteca};
         int res = Dialogs.showForm(parent, "Insertar Lector", labels, fields);
-        if (res != JOptionPane.OK_OPTION) return null;
+        if (res != JOptionPane.OK_OPTION) {
+            return null;
+        }
 
         try {
             String textoBiblioteca = (String) cmbBiblioteca.getSelectedItem();
             int idBiblioteca = Integer.parseInt(textoBiblioteca.split(" - ")[0]);
 
-            Lector l = new Lector();
-            l.setIdLector(Integer.parseInt(txtId.getText().trim()));
-            l.setNombre(txtNombre.getText().trim());
-            l.setApellido1(txtAp1.getText().trim());
-            l.setApellido2(Dialogs.textOrNull(txtAp2));
-            l.setEmail(Dialogs.textOrNull(txtEmail));
-            l.setTelefono(Dialogs.textOrNull(txtTel));
-            l.setBiblioteca(bibliotecas.stream().filter(b -> b.getIdBiblioteca() == idBiblioteca).findFirst().orElse(null));
-            return l;
-        } catch (NumberFormatException ex) {
+            Lector lector = new Lector();
+            lector.setIdLector(Integer.parseInt(txtId.getText().trim()));
+            lector.setNombre(txtNombre.getText().trim());
+            lector.setApellido1(txtAp1.getText().trim());
+            lector.setApellido2(Dialogs.textOrNull(txtAp2));
+            lector.setEmail(Dialogs.textOrNull(txtEmail));
+            lector.setTelefono(Dialogs.textOrNull(txtTel));
+            lector.setBiblioteca(bibliotecas.stream().filter(biblioteca -> biblioteca.getIdBiblioteca() == idBiblioteca).findFirst().orElse(null));
+            return lector;
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(parent, "El ID debe ser un número entero");
             return null;
         }
     }
 
     public static Lector showUpdate(Component parent, Lector l, List<Biblioteca> bibliotecas) {
-        if (l == null) return null;
+        if (l == null) {
+            return null;
+        }
+
         String[] opcionesBiblioteca = new String[bibliotecas.size()];
         for (int i = 0; i < bibliotecas.size(); i++) {
-            Biblioteca b = bibliotecas.get(i);
-            opcionesBiblioteca[i] = b.getIdBiblioteca() + " - " + b.getNombre();
+            Biblioteca biblioteca = bibliotecas.get(i);
+            opcionesBiblioteca[i] = biblioteca.getIdBiblioteca() + " - " + biblioteca.getNombre();
         }
         JComboBox<String> cmbBiblioteca = new JComboBox<>(opcionesBiblioteca);
         if (l.getBiblioteca() != null) {
@@ -71,32 +76,45 @@ public class LectorDialogs {
             }
         }
 
-        JTextField txtNombre = new JTextField(l.getNombre());
-        JTextField txtAp1 = new JTextField(l.getApellido1());
+        Lector lector = l;
+
+        JTextField txtNombre = new JTextField(lector.getNombre());
+        JTextField txtAp1 = new JTextField(lector.getApellido1());
+
         String ap2 = "";
-        if (l.getApellido2() != null) ap2 = l.getApellido2();
+        if (lector.getApellido2() != null) {
+            ap2 = lector.getApellido2();
+        }
         JTextField txtAp2 = new JTextField(ap2);
+
         String email = "";
-        if (l.getEmail() != null) email = l.getEmail();
+        if (lector.getEmail() != null) {
+            email = lector.getEmail();
+        }
         JTextField txtEmail = new JTextField(email);
+
         String telefono = "";
-        if (l.getTelefono() != null) telefono = l.getTelefono();
+        if (lector.getTelefono() != null) {
+            telefono = lector.getTelefono();
+        }
         JTextField txtTel = new JTextField(telefono);
 
         String[] labels = {"Nombre:", "Apellido 1:", "Apellido 2:", "Email:", "Teléfono:", "Biblioteca:"};
         Component[] fields = {txtNombre, txtAp1, txtAp2, txtEmail, txtTel, cmbBiblioteca};
         int res = Dialogs.showForm(parent, "Actualizar Lector", labels, fields);
-        if (res != JOptionPane.OK_OPTION) return null;
+        if (res != JOptionPane.OK_OPTION) {
+            return null;
+        }
 
         String textoBiblioteca = (String) cmbBiblioteca.getSelectedItem();
         int idBiblioteca = Integer.parseInt(textoBiblioteca.split(" - ")[0]);
 
-        l.setNombre(txtNombre.getText().trim());
-        l.setApellido1(txtAp1.getText().trim());
-        l.setApellido2(Dialogs.textOrNull(txtAp2));
-        l.setEmail(Dialogs.textOrNull(txtEmail));
-        l.setTelefono(Dialogs.textOrNull(txtTel));
-        l.setBiblioteca(bibliotecas.stream().filter(b -> b.getIdBiblioteca() == idBiblioteca).findFirst().orElse(null));
-        return l;
+        lector.setNombre(txtNombre.getText().trim());
+        lector.setApellido1(txtAp1.getText().trim());
+        lector.setApellido2(Dialogs.textOrNull(txtAp2));
+        lector.setEmail(Dialogs.textOrNull(txtEmail));
+        lector.setTelefono(Dialogs.textOrNull(txtTel));
+        lector.setBiblioteca(bibliotecas.stream().filter(biblioteca -> biblioteca.getIdBiblioteca() == idBiblioteca).findFirst().orElse(null));
+        return lector;
     }
 }

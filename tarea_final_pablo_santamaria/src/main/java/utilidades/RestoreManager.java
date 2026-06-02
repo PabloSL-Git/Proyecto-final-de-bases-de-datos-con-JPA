@@ -18,9 +18,11 @@ public class RestoreManager {
 
     public String obtenerUltimaCopia() {
         File dir = new File(".");
-        File[] files = dir.listFiles((d, name) -> name.startsWith("backup_"));
+        File[] files = dir.listFiles((directorio, name) -> name.startsWith("backup_"));
 
-        if (files == null || files.length == 0) return null;
+        if (files == null || files.length == 0) {
+            return null;
+        }
 
         Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
         return files[0].getAbsolutePath();
@@ -36,8 +38,8 @@ public class RestoreManager {
 
         if (files != null) {
             Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
-            for (File f : files) {
-                copias.add(f.getAbsolutePath());
+            for (File copia : files) {
+                copias.add(copia.getAbsolutePath());
             }
         }
         return copias;
@@ -64,9 +66,11 @@ public class RestoreManager {
 
             tx.commit();
             System.out.println(" Restauración completada");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+        } catch (Exception excepcion) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
             em.close();
         }
@@ -105,11 +109,15 @@ public class RestoreManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",", -1);
-                Biblioteca b = new Biblioteca();
-                b.setIdBiblioteca(Integer.parseInt(data[0]));
-                b.setNombre(data[1]);
-                b.setDireccion(data.length > 2 ? data[2] : "");
-                em.persist(b);
+                Biblioteca biblioteca = new Biblioteca();
+                biblioteca.setIdBiblioteca(Integer.parseInt(data[0]));
+                biblioteca.setNombre(data[1]);
+                if (data.length > 2) {
+                    biblioteca.setDireccion(data[2]);
+                } else {
+                    biblioteca.setDireccion("");
+                }
+                em.persist(biblioteca);
             }
         }
     }
@@ -123,13 +131,13 @@ public class RestoreManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",", -1);
-                Autor a = new Autor();
-                a.setIdAutor(Integer.parseInt(data[0]));
-                a.setNombre(data[1]);
-                a.setApellido1(data[2]);
-                a.setApellido2(data[3]);
-                a.setNacionalidad(data[4]);
-                em.persist(a);
+                Autor autor = new Autor();
+                autor.setIdAutor(Integer.parseInt(data[0]));
+                autor.setNombre(data[1]);
+                autor.setApellido1(data[2]);
+                autor.setApellido2(data[3]);
+                autor.setNacionalidad(data[4]);
+                em.persist(autor);
             }
         }
     }
@@ -143,21 +151,21 @@ public class RestoreManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",", -1);
-                Libro l = new Libro();
-                l.setIdLibro(Integer.parseInt(data[0]));
-                l.setTitulo(data[1]);
-                l.setAnioPublicacion(Integer.parseInt(data[2]));
-                l.setEstado(data[3]);
+                Libro libro = new Libro();
+                libro.setIdLibro(Integer.parseInt(data[0]));
+                libro.setTitulo(data[1]);
+                libro.setAnioPublicacion(Integer.parseInt(data[2]));
+                libro.setEstado(data[3]);
 
                 if (data.length > 4 && !data[4].isEmpty() && !data[4].equals("0")) {
-                    l.setAutor(em.find(Autor.class, Integer.parseInt(data[4])));
+                    libro.setAutor(em.find(Autor.class, Integer.parseInt(data[4])));
                 }
 
                 if (data.length > 5 && !data[5].isEmpty() && !data[5].equals("0")) {
-                    l.setBiblioteca(em.find(Biblioteca.class, Integer.parseInt(data[5])));
+                    libro.setBiblioteca(em.find(Biblioteca.class, Integer.parseInt(data[5])));
                 }
 
-                em.persist(l);
+                em.persist(libro);
             }
         }
     }
@@ -171,19 +179,19 @@ public class RestoreManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",", -1);
-                Lector l = new Lector();
-                l.setIdLector(Integer.parseInt(data[0]));
-                l.setNombre(data[1]);
-                l.setApellido1(data[2]);
-                l.setApellido2(data[3]);
-                l.setEmail(data[4]);
-                l.setTelefono(data[5]);
+                Lector lector = new Lector();
+                lector.setIdLector(Integer.parseInt(data[0]));
+                lector.setNombre(data[1]);
+                lector.setApellido1(data[2]);
+                lector.setApellido2(data[3]);
+                lector.setEmail(data[4]);
+                lector.setTelefono(data[5]);
 
                 if (data.length > 6 && !data[6].isEmpty() && !data[6].equals("0")) {
-                    l.setBiblioteca(em.find(Biblioteca.class, Integer.parseInt(data[6])));
+                    lector.setBiblioteca(em.find(Biblioteca.class, Integer.parseInt(data[6])));
                 }
 
-                em.persist(l);
+                em.persist(lector);
             }
         }
     }
@@ -197,19 +205,19 @@ public class RestoreManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",", -1);
-                Credencial c = new Credencial();
-                c.setIdCredencial(Integer.parseInt(data[0]));
-                c.setNumeroTarjeta(data[1]);
+                Credencial credencial = new Credencial();
+                credencial.setIdCredencial(Integer.parseInt(data[0]));
+                credencial.setNumeroTarjeta(data[1]);
 
                 if (data.length > 2 && !data[2].isEmpty() && !data[2].equals("null")) {
-                    c.setFechaEmision(LocalDate.parse(data[2]));
+                    credencial.setFechaEmision(LocalDate.parse(data[2]));
                 }
 
                 if (data.length > 3 && !data[3].isEmpty() && !data[3].equals("0")) {
-                    c.setLector(em.find(Lector.class, Integer.parseInt(data[3])));
+                    credencial.setLector(em.find(Lector.class, Integer.parseInt(data[3])));
                 }
 
-                em.persist(c);
+                em.persist(credencial);
             }
         }
     }
@@ -223,23 +231,23 @@ public class RestoreManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",", -1);
-                Prestamo p = new Prestamo();
-                p.setIdPrestamo(Integer.parseInt(data[0]));
-                p.setFechaInicio(LocalDate.parse(data[1]));
+                Prestamo prestamo = new Prestamo();
+                prestamo.setIdPrestamo(Integer.parseInt(data[0]));
+                prestamo.setFechaInicio(LocalDate.parse(data[1]));
 
                 if (data.length > 2 && !data[2].isEmpty() && !data[2].equals("null")) {
-                    p.setFechaFin(LocalDate.parse(data[2]));
+                    prestamo.setFechaFin(LocalDate.parse(data[2]));
                 }
 
                 if (data.length > 3 && !data[3].isEmpty() && !data[3].equals("0")) {
-                    p.setLector(em.find(Lector.class, Integer.parseInt(data[3])));
+                    prestamo.setLector(em.find(Lector.class, Integer.parseInt(data[3])));
                 }
 
                 if (data.length > 4 && !data[4].isEmpty() && !data[4].equals("0")) {
-                    p.setLibro(em.find(Libro.class, Integer.parseInt(data[4])));
+                    prestamo.setLibro(em.find(Libro.class, Integer.parseInt(data[4])));
                 }
 
-                em.persist(p);
+                em.persist(prestamo);
             }
         }
     }

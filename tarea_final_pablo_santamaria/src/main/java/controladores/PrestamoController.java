@@ -14,69 +14,75 @@ public class PrestamoController extends AbstractCrudController<Prestamo, Integer
     }
 
     public void insertarPrestamo(Prestamo prestamo) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            em.persist(prestamo);
+            transaction.begin();
+            entityManager.persist(prestamo);
             // Al crear un préstamo, marcamos el libro como "prestado" automáticamente
             if (prestamo.getLibro() != null) {
                 prestamo.getLibro().setEstado("prestado");
-                em.merge(prestamo.getLibro());
+                entityManager.merge(prestamo.getLibro());
             }
-            tx.commit();
+            transaction.commit();
             System.out.println("Préstamo insertado");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 
     public void actualizarPrestamo(Prestamo prestamo) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            em.merge(prestamo);
+            transaction.begin();
+            entityManager.merge(prestamo);
             // Si se ha puesto fecha de fin, significa que el libro ha sido devuelto
             // Actualizamos el estado del libro a "disponible"
             if (prestamo.getLibro() != null && prestamo.getFechaFin() != null) {
                 prestamo.getLibro().setEstado("disponible");
-                em.merge(prestamo.getLibro());
+                entityManager.merge(prestamo.getLibro());
             }
-            tx.commit();
+            transaction.commit();
             System.out.println("Préstamo actualizado");
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 
     public void borrarPrestamo(int idPrestamo) {
-        EntityManager em = JPAUtil.getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            Prestamo prestamo = em.find(Prestamo.class, idPrestamo);
+            transaction.begin();
+            Prestamo prestamo = entityManager.find(Prestamo.class, idPrestamo);
             if (prestamo != null) {
                 // Al eliminar el préstamo, dejamos el libro disponible de nuevo
                 if (prestamo.getLibro() != null) {
                     prestamo.getLibro().setEstado("disponible");
-                    em.merge(prestamo.getLibro());
+                    entityManager.merge(prestamo.getLibro());
                 }
-                em.remove(prestamo);
+                entityManager.remove(prestamo);
                 System.out.println("Préstamo eliminado");
             }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            transaction.commit();
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 

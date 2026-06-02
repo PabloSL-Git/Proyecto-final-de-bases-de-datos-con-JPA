@@ -17,42 +17,57 @@ public class AutorDialogs {
         String[] labels = {"ID:", "Nombre:", "Apellido 1:", "Apellido 2 (opcional):", "Nacionalidad:"};
         Component[] fields = {txtId, txtNombre, txtAp1, txtAp2, txtNac};
         int res = Dialogs.showForm(parent, "Insertar Autor", labels, fields);
-        if (res != JOptionPane.OK_OPTION) return null;
+        if (res != JOptionPane.OK_OPTION) {
+            return null;
+        }
 
         try {
-            Autor a = new Autor();
-            a.setIdAutor(Integer.parseInt(txtId.getText().trim()));
-            a.setNombre(txtNombre.getText().trim());
-            a.setApellido1(txtAp1.getText().trim());
-            a.setApellido2(Dialogs.textOrNull(txtAp2));
-            a.setNacionalidad(Dialogs.textOrNull(txtNac));
-            return a;
-        } catch (NumberFormatException ex) {
+            Autor autor = new Autor();
+            autor.setIdAutor(Integer.parseInt(txtId.getText().trim()));
+            autor.setNombre(txtNombre.getText().trim());
+            autor.setApellido1(txtAp1.getText().trim());
+            autor.setApellido2(Dialogs.textOrNull(txtAp2));
+            autor.setNacionalidad(Dialogs.textOrNull(txtNac));
+            return autor;
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(parent, "El ID debe ser un número entero");
             return null;
         }
     }
 
     public static Autor showUpdate(Component parent, Autor a) {
-        if (a == null) return null;
-        JTextField txtNombre = new JTextField(a.getNombre());
-        JTextField txtAp1 = new JTextField(a.getApellido1());
+        if (a == null) {
+            return null;
+        }
+
+        Autor autor = a;
+
+        JTextField txtNombre = new JTextField(autor.getNombre());
+        JTextField txtAp1 = new JTextField(autor.getApellido1());
+
         String ap2 = "";
-        if (a.getApellido2() != null) ap2 = a.getApellido2();
+        if (autor.getApellido2() != null) {
+            ap2 = autor.getApellido2();
+        }
         JTextField txtAp2 = new JTextField(ap2);
+
         String nac = "";
-        if (a.getNacionalidad() != null) nac = a.getNacionalidad();
+        if (autor.getNacionalidad() != null) {
+            nac = autor.getNacionalidad();
+        }
         JTextField txtNac = new JTextField(nac);
 
         String[] labels = {"Nombre:", "Apellido 1:", "Apellido 2:", "Nacionalidad:"};
         Component[] fields = {txtNombre, txtAp1, txtAp2, txtNac};
         int res = Dialogs.showForm(parent, "Actualizar Autor", labels, fields);
-        if (res != JOptionPane.OK_OPTION) return null;
+        if (res != JOptionPane.OK_OPTION) {
+            return null;
+        }
 
-        a.setNombre(txtNombre.getText().trim());
-        a.setApellido1(txtAp1.getText().trim());
-        a.setApellido2(Dialogs.textOrNull(txtAp2));
-        a.setNacionalidad(Dialogs.textOrNull(txtNac));
-        return a;
+        autor.setNombre(txtNombre.getText().trim());
+        autor.setApellido1(txtAp1.getText().trim());
+        autor.setApellido2(Dialogs.textOrNull(txtAp2));
+        autor.setNacionalidad(Dialogs.textOrNull(txtNac));
+        return autor;
     }
 }

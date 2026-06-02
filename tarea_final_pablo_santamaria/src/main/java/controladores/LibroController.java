@@ -21,13 +21,13 @@ public class LibroController extends AbstractCrudController<Libro, Integer> {
     }
 
     public void borrarLibro(int idLibro) {
-        var em = utilidades.JPAUtil.getEntityManager();
-        var tx = em.getTransaction();
+        var entityManager = utilidades.JPAUtil.getEntityManager();
+        var transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            Libro libro = em.find(Libro.class, idLibro);
+            transaction.begin();
+            Libro libro = entityManager.find(Libro.class, idLibro);
             if (libro != null) {
-                long prestamosActivos = (long) em.createQuery(
+                long prestamosActivos = (long) entityManager.createQuery(
                         "SELECT COUNT(p) FROM Prestamo p WHERE p.libro.idLibro = :id AND p.fechaFin IS NULL")
                         .setParameter("id", idLibro)
                         .getSingleResult();
@@ -36,21 +36,25 @@ public class LibroController extends AbstractCrudController<Libro, Integer> {
                             "No se puede eliminar: el libro tiene "
                                     + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
                 }
-                em.createQuery("DELETE FROM Prestamo p WHERE p.libro.idLibro = :id")
+                entityManager.createQuery("DELETE FROM Prestamo p WHERE p.libro.idLibro = :id")
                         .setParameter("id", idLibro)
                         .executeUpdate();
-                em.remove(libro);
+                entityManager.remove(libro);
                 System.out.println("Libro eliminado");
             }
-            tx.commit();
-        } catch (IllegalStateException e) {
-            if (tx.isActive()) tx.rollback();
-            throw e;
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            transaction.commit();
+        } catch (IllegalStateException excepcionEstado) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw excepcionEstado;
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 

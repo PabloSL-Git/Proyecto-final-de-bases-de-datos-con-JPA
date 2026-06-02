@@ -54,25 +54,31 @@ public class BibliotecaFrame extends JFrame {
             textArea.append("No hay bibliotecas registradas.\n");
             return;
         }
-        for (Biblioteca b : bibliotecas) {
+        for (Biblioteca biblioteca : bibliotecas) {
             String direccion = "-";
-            if (b.getDireccion() != null) direccion = b.getDireccion();
-            textArea.append("ID: " + b.getIdBiblioteca()
-                    + " | " + b.getNombre()
+            if (biblioteca.getDireccion() != null) {
+                direccion = biblioteca.getDireccion();
+            }
+
+            textArea.append("ID: " + biblioteca.getIdBiblioteca()
+                    + " | " + biblioteca.getNombre()
                     + " | Dirección: " + direccion + "\n");
         }
     }
 
     private void insertar() {
-        Biblioteca b = BibliotecaDialogs.showInsert(this);
-        if (b == null) return;
+        Biblioteca biblioteca = BibliotecaDialogs.showInsert(this);
+        if (biblioteca == null) {
+            return;
+        }
+
         try {
-            controller.insertarBiblioteca(b);
+            controller.insertarBiblioteca(biblioteca);
             JOptionPane.showMessageDialog(this, "Biblioteca insertada correctamente");
             listar();
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al insertar biblioteca");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -81,23 +87,29 @@ public class BibliotecaFrame extends JFrame {
         if (input == null || input.isBlank()) {
             return;
         }
+
         try {
             int id = Integer.parseInt(input.trim());
-            Biblioteca b = controller.buscarPorId(id);
-            if (b == null) {
+            Biblioteca biblioteca = controller.buscarPorId(id);
+
+            if (biblioteca == null) {
                 JOptionPane.showMessageDialog(this, "Biblioteca no encontrada");
                 return;
             }
-            Biblioteca updated = BibliotecaDialogs.showUpdate(this, b);
-            if (updated == null) return;
-            controller.actualizarBiblioteca(updated);
+
+            Biblioteca updatedBiblioteca = BibliotecaDialogs.showUpdate(this, biblioteca);
+            if (updatedBiblioteca == null) {
+                return;
+            }
+
+            controller.actualizarBiblioteca(updatedBiblioteca);
             JOptionPane.showMessageDialog(this, "Biblioteca actualizada correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al actualizar biblioteca");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -106,18 +118,19 @@ public class BibliotecaFrame extends JFrame {
         if (input == null || input.isBlank()) {
             return;
         }
+
         try {
             int id = Integer.parseInt(input.trim());
             controller.borrarBiblioteca(id);
             JOptionPane.showMessageDialog(this, "Biblioteca eliminada correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (IllegalStateException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) {
+        } catch (IllegalStateException excepcionEstado) {
+            JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar biblioteca");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 }

@@ -54,38 +54,41 @@ public class AutorFrame extends JFrame {
             textArea.append("No hay autores registrados.\n");
             return;
         }
-        for (Autor a : autores) {
+        for (Autor autor : autores) {
             // apellido2 y nacionalidad son opcionales, pueden ser null
             String apellido2;
-            if (a.getApellido2() != null) {
-                apellido2 = " " + a.getApellido2();
+            if (autor.getApellido2() != null) {
+                apellido2 = " " + autor.getApellido2();
             } else {
                 apellido2 = "";
             }
 
             String nacionalidad;
-            if (a.getNacionalidad() != null) {
-                nacionalidad = a.getNacionalidad();
+            if (autor.getNacionalidad() != null) {
+                nacionalidad = autor.getNacionalidad();
             } else {
                 nacionalidad = "-";
             }
 
-            textArea.append("ID: " + a.getIdAutor()
-                    + " | " + a.getNombre() + " " + a.getApellido1() + apellido2
+            textArea.append("ID: " + autor.getIdAutor()
+                    + " | " + autor.getNombre() + " " + autor.getApellido1() + apellido2
                     + " | Nacionalidad: " + nacionalidad + "\n");
         }
     }
 
     private void insertar() {
-        Autor a = AutorDialogs.showInsert(this);
-        if (a == null) return;
+        Autor autor = AutorDialogs.showInsert(this);
+        if (autor == null) {
+            return;
+        }
+
         try {
-            controller.insertarAutor(a);
+            controller.insertarAutor(autor);
             JOptionPane.showMessageDialog(this, "Autor insertado correctamente");
             listar();
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al insertar autor");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -96,23 +99,25 @@ public class AutorFrame extends JFrame {
         }
         try {
             int id = Integer.parseInt(input.trim());
-            Autor a = controller.buscarPorId(id);
-            if (a == null) {
+            Autor autor = controller.buscarPorId(id);
+            if (autor == null) {
                 JOptionPane.showMessageDialog(this, "Autor no encontrado");
                 return;
             }
 
             // Pre-rellenamos con los valores actuales (null lo tratamos como cadena vacía)
-            Autor updated = AutorDialogs.showUpdate(this, a);
-            if (updated == null) return;
-            controller.actualizarAutor(updated);
+            Autor autorActualizado = AutorDialogs.showUpdate(this, autor);
+            if (autorActualizado == null) {
+                return;
+            }
+            controller.actualizarAutor(autorActualizado);
             JOptionPane.showMessageDialog(this, "Autor actualizado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (Exception ex) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al actualizar autor");
-            ex.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 
@@ -126,13 +131,13 @@ public class AutorFrame extends JFrame {
             controller.borrarAutor(id);
             JOptionPane.showMessageDialog(this, "Autor eliminado correctamente");
             listar();
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
-        } catch (IllegalStateException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) {
+        } catch (IllegalStateException excepcionEstado) {
+            JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar autor");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 }

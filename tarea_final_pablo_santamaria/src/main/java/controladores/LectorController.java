@@ -21,13 +21,13 @@ public class LectorController extends AbstractCrudController<Lector, Integer> {
     }
 
     public void borrarLector(int idLector) {
-        var em = utilidades.JPAUtil.getEntityManager();
-        var tx = em.getTransaction();
+        var entityManager = utilidades.JPAUtil.getEntityManager();
+        var transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            Lector lector = em.find(Lector.class, idLector);
+            transaction.begin();
+            Lector lector = entityManager.find(Lector.class, idLector);
             if (lector != null) {
-                long prestamos = (long) em.createQuery(
+                long prestamos = (long) entityManager.createQuery(
                         "SELECT COUNT(p) FROM Prestamo p WHERE p.lector.idLector = :id")
                         .setParameter("id", idLector)
                         .getSingleResult();
@@ -35,18 +35,22 @@ public class LectorController extends AbstractCrudController<Lector, Integer> {
                     throw new IllegalStateException(
                             "No se puede eliminar: el lector tiene " + prestamos + " préstamo(s) asociado(s).");
                 }
-                em.remove(lector);
+                entityManager.remove(lector);
                 System.out.println("Lector eliminado");
             }
-            tx.commit();
-        } catch (IllegalStateException e) {
-            if (tx.isActive()) tx.rollback();
-            throw e;
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            transaction.commit();
+        } catch (IllegalStateException excepcionEstado) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw excepcionEstado;
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 

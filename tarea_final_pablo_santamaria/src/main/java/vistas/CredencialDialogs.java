@@ -17,8 +17,8 @@ public class CredencialDialogs {
         }
         String[] opciones = new String[lectores.size()];
         for (int i = 0; i < lectores.size(); i++) {
-            Lector l = lectores.get(i);
-            opciones[i] = l.getIdLector() + " - " + l.getNombre() + " " + l.getApellido1();
+            Lector lector = lectores.get(i);
+            opciones[i] = lector.getIdLector() + " - " + lector.getNombre() + " " + lector.getApellido1();
         }
 
         JTextField txtId = new JTextField();
@@ -28,35 +28,51 @@ public class CredencialDialogs {
         String[] labels = {"ID:", "Número de tarjeta:", "Fecha emisión (yyyy-mm-dd):", "Lector:"};
         Component[] fields = {txtId, txtTarj, txtFecha, cmbLector};
         int res = Dialogs.showForm(parent, "Insertar Credencial", labels, fields);
-        if (res != JOptionPane.OK_OPTION) return null;
+        if (res != JOptionPane.OK_OPTION) {
+            return null;
+        }
 
         try {
             String seleccion = (String) cmbLector.getSelectedItem();
             int idLector = Integer.parseInt(seleccion.split(" - ")[0]);
-            Credencial c = new Credencial();
-            c.setIdCredencial(Integer.parseInt(txtId.getText().trim()));
-            c.setNumeroTarjeta(txtTarj.getText().trim());
-            c.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
-            c.setLector(lectores.stream().filter(l -> l.getIdLector() == idLector).findFirst().orElse(null));
-            return c;
-        } catch (Exception ex) {
+            Credencial credencial = new Credencial();
+            credencial.setIdCredencial(Integer.parseInt(txtId.getText().trim()));
+            credencial.setNumeroTarjeta(txtTarj.getText().trim());
+            credencial.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
+            credencial.setLector(lectores.stream().filter(lector -> lector.getIdLector() == idLector).findFirst().orElse(null));
+            return credencial;
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(parent, "Datos inválidos (ID/fecha)");
             return null;
         }
     }
 
     public static Credencial showUpdate(Component parent, Credencial c) {
-        if (c == null) return null;
-        JTextField txtTarj = new JTextField(c.getNumeroTarjeta());
+        if (c == null) {
+            return null;
+        }
+
+        Credencial credencial = c;
+
+        JTextField txtTarj = new JTextField(credencial.getNumeroTarjeta());
+
         String fecha = "";
-        if (c.getFechaEmision() != null) fecha = c.getFechaEmision().toString();
+        if (credencial.getFechaEmision() != null) {
+            fecha = credencial.getFechaEmision().toString();
+        }
         JTextField txtFecha = new JTextField(fecha);
+
         String[] labels = {"Número de tarjeta:", "Fecha emisión (yyyy-mm-dd):"};
         Component[] fields = {txtTarj, txtFecha};
         int res = Dialogs.showForm(parent, "Actualizar Credencial", labels, fields);
-        if (res != JOptionPane.OK_OPTION) return null;
-        c.setNumeroTarjeta(txtTarj.getText().trim());
-        if (!txtFecha.getText().isBlank()) c.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
-        return c;
+        if (res != JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        credencial.setNumeroTarjeta(txtTarj.getText().trim());
+        if (!txtFecha.getText().isBlank()) {
+            credencial.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
+        }
+        return credencial;
     }
 }

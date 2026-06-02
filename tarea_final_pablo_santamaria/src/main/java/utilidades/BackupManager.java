@@ -47,8 +47,8 @@ public class BackupManager {
 
             System.out.println("Backup creado en carpeta: " + carpeta);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception excepcion) {
+            excepcion.printStackTrace();
         }
     }
 
@@ -56,8 +56,8 @@ public class BackupManager {
         List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/bibliotecas.csv"))) {
             pw.println("id,nombre,direccion");
-            for (Biblioteca b : bibliotecas) {
-                pw.println(b.getIdBiblioteca() + "," + csv(b.getNombre()) + "," + csv(b.getDireccion()));
+            for (Biblioteca biblioteca : bibliotecas) {
+                pw.println(biblioteca.getIdBiblioteca() + "," + csv(biblioteca.getNombre()) + "," + csv(biblioteca.getDireccion()));
             }
         }
     }
@@ -66,10 +66,10 @@ public class BackupManager {
         List<Autor> autores = autorController.listarAutores();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/autores.csv"))) {
             pw.println("id,nombre,apellido1,apellido2,nacionalidad");
-            for (Autor a : autores) {
-                pw.println(a.getIdAutor() + "," + csv(a.getNombre()) + "," +
-                        csv(a.getApellido1()) + "," + csv(a.getApellido2()) + "," +
-                        csv(a.getNacionalidad()));
+            for (Autor autor : autores) {
+                pw.println(autor.getIdAutor() + "," + csv(autor.getNombre()) + "," +
+                        csv(autor.getApellido1()) + "," + csv(autor.getApellido2()) + "," +
+                        csv(autor.getNacionalidad()));
             }
         }
     }
@@ -78,11 +78,23 @@ public class BackupManager {
         List<Libro> libros = libroController.listarLibros();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/libros.csv"))) {
             pw.println("id,titulo,anio,estado,id_autor,id_biblioteca");
-            for (Libro l : libros) {
-                int idAutor = (l.getAutor() != null) ? l.getAutor().getIdAutor() : 0;
-                int idBiblioteca = (l.getBiblioteca() != null) ? l.getBiblioteca().getIdBiblioteca() : 0;
-                pw.println(l.getIdLibro() + "," + csv(l.getTitulo()) + "," +
-                        l.getAnioPublicacion() + "," + csv(l.getEstado()) + "," +
+            for (Libro libro : libros) {
+                int idAutor;
+                if (libro.getAutor() != null) {
+                    idAutor = libro.getAutor().getIdAutor();
+                } else {
+                    idAutor = 0;
+                }
+
+                int idBiblioteca;
+                if (libro.getBiblioteca() != null) {
+                    idBiblioteca = libro.getBiblioteca().getIdBiblioteca();
+                } else {
+                    idBiblioteca = 0;
+                }
+
+                pw.println(libro.getIdLibro() + "," + csv(libro.getTitulo()) + "," +
+                        libro.getAnioPublicacion() + "," + csv(libro.getEstado()) + "," +
                         idAutor + "," + idBiblioteca);
             }
         }
@@ -92,11 +104,17 @@ public class BackupManager {
         List<Lector> lectores = lectorController.listarLectores();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/lectores.csv"))) {
             pw.println("id,nombre,apellido1,apellido2,email,telefono,id_biblioteca");
-            for (Lector l : lectores) {
-                int idBiblioteca = (l.getBiblioteca() != null) ? l.getBiblioteca().getIdBiblioteca() : 0;
-                pw.println(l.getIdLector() + "," + csv(l.getNombre()) + "," +
-                        csv(l.getApellido1()) + "," + csv(l.getApellido2()) + "," +
-                        csv(l.getEmail()) + "," + csv(l.getTelefono()) + "," + idBiblioteca);
+            for (Lector lector : lectores) {
+                int idBiblioteca;
+                if (lector.getBiblioteca() != null) {
+                    idBiblioteca = lector.getBiblioteca().getIdBiblioteca();
+                } else {
+                    idBiblioteca = 0;
+                }
+
+                pw.println(lector.getIdLector() + "," + csv(lector.getNombre()) + "," +
+                        csv(lector.getApellido1()) + "," + csv(lector.getApellido2()) + "," +
+                        csv(lector.getEmail()) + "," + csv(lector.getTelefono()) + "," + idBiblioteca);
             }
         }
     }
@@ -105,10 +123,16 @@ public class BackupManager {
         List<Credencial> credenciales = credencialController.listarCredenciales();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/credenciales.csv"))) {
             pw.println("id,numero_tarjeta,fecha_emision,id_lector");
-            for (Credencial c : credenciales) {
-                int idLector = (c.getLector() != null) ? c.getLector().getIdLector() : 0;
-                pw.println(c.getIdCredencial() + "," + csv(c.getNumeroTarjeta()) + "," +
-                        csv(c.getFechaEmision()) + "," + idLector);
+            for (Credencial credencial : credenciales) {
+                int idLector;
+                if (credencial.getLector() != null) {
+                    idLector = credencial.getLector().getIdLector();
+                } else {
+                    idLector = 0;
+                }
+
+                pw.println(credencial.getIdCredencial() + "," + csv(credencial.getNumeroTarjeta()) + "," +
+                        csv(credencial.getFechaEmision()) + "," + idLector);
             }
         }
     }
@@ -117,11 +141,23 @@ public class BackupManager {
         List<Prestamo> prestamos = prestamoController.listarPrestamos();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/prestamos.csv"))) {
             pw.println("id,fecha_inicio,fecha_fin,id_lector,id_libro");
-            for (Prestamo p : prestamos) {
-                int idLector = (p.getLector() != null) ? p.getLector().getIdLector() : 0;
-                int idLibro = (p.getLibro() != null) ? p.getLibro().getIdLibro() : 0;
-                pw.println(p.getIdPrestamo() + "," + csv(p.getFechaInicio()) + "," +
-                        csv(p.getFechaFin()) + "," + idLector + "," + idLibro);
+            for (Prestamo prestamo : prestamos) {
+                int idLector;
+                if (prestamo.getLector() != null) {
+                    idLector = prestamo.getLector().getIdLector();
+                } else {
+                    idLector = 0;
+                }
+
+                int idLibro;
+                if (prestamo.getLibro() != null) {
+                    idLibro = prestamo.getLibro().getIdLibro();
+                } else {
+                    idLibro = 0;
+                }
+
+                pw.println(prestamo.getIdPrestamo() + "," + csv(prestamo.getFechaInicio()) + "," +
+                        csv(prestamo.getFechaFin()) + "," + idLector + "," + idLibro);
             }
         }
     }

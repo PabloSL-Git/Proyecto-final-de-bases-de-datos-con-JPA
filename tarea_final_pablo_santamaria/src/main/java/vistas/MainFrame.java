@@ -50,30 +50,30 @@ public class MainFrame extends JFrame {
         panel.add(grid, BorderLayout.CENTER);
         add(panel);
 
-        btnLibros.addActionListener(e -> new LibroFrame().setVisible(true));
-        btnAutores.addActionListener(e -> new AutorFrame().setVisible(true));
-        btnBibliotecas.addActionListener(e -> new BibliotecaFrame().setVisible(true));
-        btnLectores.addActionListener(e -> new LectorFrame().setVisible(true));
-        btnCredenciales.addActionListener(e -> new CredencialFrame().setVisible(true));
-        btnPrestamos.addActionListener(e -> new PrestamoFrame().setVisible(true));
-        btnBackup.addActionListener(e -> abrirBackup());
-        btnSalir.addActionListener(e -> salir());
+        btnLibros.addActionListener(evento -> new LibroFrame().setVisible(true));
+        btnAutores.addActionListener(evento -> new AutorFrame().setVisible(true));
+        btnBibliotecas.addActionListener(evento -> new BibliotecaFrame().setVisible(true));
+        btnLectores.addActionListener(evento -> new LectorFrame().setVisible(true));
+        btnCredenciales.addActionListener(evento -> new CredencialFrame().setVisible(true));
+        btnPrestamos.addActionListener(evento -> new PrestamoFrame().setVisible(true));
+        btnBackup.addActionListener(evento -> abrirBackup());
+        btnSalir.addActionListener(evento -> salir());
     }
 
     private void abrirBackup() {
         String[] opciones = {"Crear Backup", "Restaurar Backup"};
-        int op = JOptionPane.showOptionDialog(this, "¿Qué deseas hacer?", "Backup",
+        int opcion = JOptionPane.showOptionDialog(this, "¿Qué deseas hacer?", "Backup",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
 
-        if (op == 0) {
+        if (opcion == 0) {
             try {
                 new BackupManager().crearBackup();
                 JOptionPane.showMessageDialog(this, "Backup creado correctamente");
-            } catch (Exception e) {
+            } catch (Exception excepcion) {
                 JOptionPane.showMessageDialog(this, "Error al crear backup");
-                e.printStackTrace();
+                excepcion.printStackTrace();
             }
-        } else if (op == 1) {
+        } else if (opcion == 1) {
             restaurar();
         }
     }
@@ -89,20 +89,20 @@ public class MainFrame extends JFrame {
             }
 
             String[] opciones = {"Restaurar última copia", "Seleccionar copia específica"};
-            int op = JOptionPane.showOptionDialog(this, "¿Qué deseas restaurar?", "Restaurar Backup",
+            int opcion = JOptionPane.showOptionDialog(this, "¿Qué deseas restaurar?", "Restaurar Backup",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
 
             String carpeta = null;
-            if (op == 0) {
+            if (opcion == 0) {
                 carpeta = rm.obtenerUltimaCopia();
-            } else if (op == 1) {
+            } else if (opcion == 1) {
                 String[] nombres = copias.stream()
-                        .map(c -> new File(c).getName())
+                        .map(copia -> new File(copia).getName())
                         .toArray(String[]::new);
-                String sel = (String) JOptionPane.showInputDialog(this, "Selecciona la copia:",
+                String seleccion = (String) JOptionPane.showInputDialog(this, "Selecciona la copia:",
                         "Seleccionar Backup", JOptionPane.QUESTION_MESSAGE, null, nombres, nombres[0]);
-                if (sel != null) {
-                    carpeta = new File(".").getAbsolutePath() + File.separator + sel;
+                if (seleccion != null) {
+                    carpeta = new File(".").getAbsolutePath() + File.separator + seleccion;
                 }
             }
 
@@ -110,9 +110,9 @@ public class MainFrame extends JFrame {
                 rm.restaurar(carpeta);
                 JOptionPane.showMessageDialog(this, "Restauración completada correctamente");
             }
-        } catch (Exception e) {
+        } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al restaurar backup");
-            e.printStackTrace();
+            excepcion.printStackTrace();
         }
     }
 

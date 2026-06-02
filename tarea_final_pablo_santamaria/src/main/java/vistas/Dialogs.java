@@ -15,9 +15,15 @@ public class Dialogs {
     }
 
     public static String textOrNull(JTextField f) {
-        if (f == null) return null;
+        if (f == null) {
+            return null;
+        }
+
         String s = f.getText().trim();
-        if (s.isBlank()) return null;
+        if (s.isBlank()) {
+            return null;
+        }
+
         return s;
     }
 }

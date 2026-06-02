@@ -21,21 +21,23 @@ public class CredencialController extends AbstractCrudController<Credencial, Int
     }
 
     public void borrarCredencial(int idCredencial) {
-        var em = utilidades.JPAUtil.getEntityManager();
-        var tx = em.getTransaction();
+        var entityManager = utilidades.JPAUtil.getEntityManager();
+        var transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            Credencial credencial = em.find(Credencial.class, idCredencial);
+            transaction.begin();
+            Credencial credencial = entityManager.find(Credencial.class, idCredencial);
             if (credencial != null) {
-                em.remove(credencial);
+                entityManager.remove(credencial);
                 System.out.println("Credencial eliminada");
             }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            transaction.commit();
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 

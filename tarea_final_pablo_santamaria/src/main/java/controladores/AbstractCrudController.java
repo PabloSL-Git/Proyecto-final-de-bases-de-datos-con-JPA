@@ -14,32 +14,36 @@ public abstract class AbstractCrudController<T, ID> {
     }
 
     public void insertar(T entidad) {
-        EntityManager em = JPAUtil.getEntityManager();
-        var tx = em.getTransaction();
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        var transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            em.persist(entidad);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            transaction.begin();
+            entityManager.persist(entidad);
+            transaction.commit();
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 
     public void actualizar(T entidad) {
-        EntityManager em = JPAUtil.getEntityManager();
-        var tx = em.getTransaction();
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        var transaction = entityManager.getTransaction();
         try {
-            tx.begin();
-            em.merge(entidad);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
+            transaction.begin();
+            entityManager.merge(entidad);
+            transaction.commit();
+        } catch (Exception excepcion) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            excepcion.printStackTrace();
         } finally {
-            em.close();
+            entityManager.close();
         }
     }
 
