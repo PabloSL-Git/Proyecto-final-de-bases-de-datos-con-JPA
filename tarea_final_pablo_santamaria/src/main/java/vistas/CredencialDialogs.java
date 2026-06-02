@@ -48,7 +48,9 @@ public class CredencialDialogs {
     public static Credencial showUpdate(Component parent, Credencial c) {
         if (c == null) return null;
         JTextField txtTarj = new JTextField(c.getNumeroTarjeta());
-        JTextField txtFecha = new JTextField(c.getFechaEmision() != null ? c.getFechaEmision().toString() : "");
+        String fecha = "";
+        if (c.getFechaEmision() != null) fecha = c.getFechaEmision().toString();
+        JTextField txtFecha = new JTextField(fecha);
         String[] labels = {"Número de tarjeta:", "Fecha emisión (yyyy-mm-dd):"};
         Component[] fields = {txtTarj, txtFecha};
         int res = Dialogs.showForm(parent, "Actualizar Credencial", labels, fields);

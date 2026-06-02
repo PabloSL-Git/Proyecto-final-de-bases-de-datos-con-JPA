@@ -55,7 +55,8 @@ public class BibliotecaFrame extends JFrame {
             return;
         }
         for (Biblioteca b : bibliotecas) {
-            String direccion = (b.getDireccion() != null) ? b.getDireccion() : "-";
+            String direccion = "-";
+            if (b.getDireccion() != null) direccion = b.getDireccion();
             textArea.append("ID: " + b.getIdBiblioteca()
                     + " | " + b.getNombre()
                     + " | Dirección: " + direccion + "\n");

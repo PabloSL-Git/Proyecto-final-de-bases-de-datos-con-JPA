@@ -31,8 +31,12 @@ public class BibliotecaDialogs {
 
     public static Biblioteca showUpdate(Component parent, Biblioteca b) {
         if (b == null) return null;
-        JTextField txtNombre = new JTextField(b.getNombre() != null ? b.getNombre() : "");
-        JTextField txtDireccion = new JTextField(b.getDireccion() != null ? b.getDireccion() : "");
+        String nombre = "";
+        if (b.getNombre() != null) nombre = b.getNombre();
+        JTextField txtNombre = new JTextField(nombre);
+        String direccion = "";
+        if (b.getDireccion() != null) direccion = b.getDireccion();
+        JTextField txtDireccion = new JTextField(direccion);
         String[] labels = {"Nombre:", "Dirección:"};
         Component[] fields = {txtNombre, txtDireccion};
         int res = Dialogs.showForm(parent, "Actualizar Biblioteca", labels, fields);

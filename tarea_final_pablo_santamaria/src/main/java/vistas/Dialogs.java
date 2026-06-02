@@ -17,6 +17,7 @@ public class Dialogs {
     public static String textOrNull(JTextField f) {
         if (f == null) return null;
         String s = f.getText().trim();
-        return s.isBlank() ? null : s;
+        if (s.isBlank()) return null;
+        return s;
     }
 }

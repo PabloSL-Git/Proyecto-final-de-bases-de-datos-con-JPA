@@ -59,10 +59,10 @@ public class CredencialFrame extends JFrame {
             return;
         }
         for (Credencial c : credenciales) {
-            String fechaEmision = (c.getFechaEmision() != null) ? c.getFechaEmision().toString() : "-";
-            String lector = (c.getLector() != null)
-                    ? c.getLector().getNombre() + " " + c.getLector().getApellido1()
-                    : "-";
+            String fechaEmision = "-";
+            if (c.getFechaEmision() != null) fechaEmision = c.getFechaEmision().toString();
+            String lector = "-";
+            if (c.getLector() != null) lector = c.getLector().getNombre() + " " + c.getLector().getApellido1();
             textArea.append("ID: " + c.getIdCredencial()
                     + " | Tarjeta: " + c.getNumeroTarjeta()
                     + " | Emisión: " + fechaEmision

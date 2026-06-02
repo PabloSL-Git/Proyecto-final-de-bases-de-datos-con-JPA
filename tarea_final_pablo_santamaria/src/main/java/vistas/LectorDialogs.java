@@ -73,9 +73,15 @@ public class LectorDialogs {
 
         JTextField txtNombre = new JTextField(l.getNombre());
         JTextField txtAp1 = new JTextField(l.getApellido1());
-        JTextField txtAp2 = new JTextField(l.getApellido2() != null ? l.getApellido2() : "");
-        JTextField txtEmail = new JTextField(l.getEmail() != null ? l.getEmail() : "");
-        JTextField txtTel = new JTextField(l.getTelefono() != null ? l.getTelefono() : "");
+        String ap2 = "";
+        if (l.getApellido2() != null) ap2 = l.getApellido2();
+        JTextField txtAp2 = new JTextField(ap2);
+        String email = "";
+        if (l.getEmail() != null) email = l.getEmail();
+        JTextField txtEmail = new JTextField(email);
+        String telefono = "";
+        if (l.getTelefono() != null) telefono = l.getTelefono();
+        JTextField txtTel = new JTextField(telefono);
 
         String[] labels = {"Nombre:", "Apellido 1:", "Apellido 2:", "Email:", "Teléfono:", "Biblioteca:"};
         Component[] fields = {txtNombre, txtAp1, txtAp2, txtEmail, txtTel, cmbBiblioteca};

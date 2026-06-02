@@ -37,8 +37,12 @@ public class AutorDialogs {
         if (a == null) return null;
         JTextField txtNombre = new JTextField(a.getNombre());
         JTextField txtAp1 = new JTextField(a.getApellido1());
-        JTextField txtAp2 = new JTextField(a.getApellido2() == null ? "" : a.getApellido2());
-        JTextField txtNac = new JTextField(a.getNacionalidad() == null ? "" : a.getNacionalidad());
+        String ap2 = "";
+        if (a.getApellido2() != null) ap2 = a.getApellido2();
+        JTextField txtAp2 = new JTextField(ap2);
+        String nac = "";
+        if (a.getNacionalidad() != null) nac = a.getNacionalidad();
+        JTextField txtNac = new JTextField(nac);
 
         String[] labels = {"Nombre:", "Apellido 1:", "Apellido 2:", "Nacionalidad:"};
         Component[] fields = {txtNombre, txtAp1, txtAp2, txtNac};
