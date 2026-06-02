@@ -21,7 +21,6 @@ public class LibroDialogs {
         JTextField txtId = new JTextField();
         JTextField txtTitulo = new JTextField();
         JTextField txtAnio = new JTextField();
-        JComboBox<String> cmbEstado = new JComboBox<>(new String[]{"disponible", "prestado"});
 
         String[] opcionesAutor = new String[autores.size()];
         for (int i = 0; i < autores.size(); i++) {
@@ -37,8 +36,8 @@ public class LibroDialogs {
         }
         JComboBox<String> cmbBiblioteca = new JComboBox<>(opcionesBiblioteca);
 
-        String[] labels = {"ID:", "Título:", "Año publicación:", "Estado:", "Autor:", "Biblioteca:"};
-        Component[] fields = {txtId, txtTitulo, txtAnio, cmbEstado, cmbAutor, cmbBiblioteca};
+        String[] labels = {"ID:", "Título:", "Año publicación:", "Autor:", "Biblioteca:"};
+        Component[] fields = {txtId, txtTitulo, txtAnio, cmbAutor, cmbBiblioteca};
         int res = Dialogs.showForm(parent, "Insertar Libro", labels, fields);
         if (res != JOptionPane.OK_OPTION) return null;
 
@@ -47,7 +46,7 @@ public class LibroDialogs {
             libro.setIdLibro(Integer.parseInt(txtId.getText().trim()));
             libro.setTitulo(txtTitulo.getText().trim());
             libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
-            libro.setEstado((String) cmbEstado.getSelectedItem());
+            libro.setEstado("disponible");
 
             if (autores.size() > 0) {
                 String textoAutor = (String) cmbAutor.getSelectedItem();
@@ -75,8 +74,8 @@ public class LibroDialogs {
 
         JTextField txtTitulo = new JTextField(libro.getTitulo());
         JTextField txtAnio = new JTextField(String.valueOf(libro.getAnioPublicacion()));
-        JComboBox<String> cmbEstado = new JComboBox<>(new String[]{"disponible", "prestado"});
-        cmbEstado.setSelectedItem(libro.getEstado());
+        JTextField txtEstado = new JTextField(libro.getEstado());
+        txtEstado.setEditable(false);
 
         String[] opcionesAutor = new String[autores.size()];
         for (int i = 0; i < autores.size(); i++) {
@@ -110,15 +109,14 @@ public class LibroDialogs {
             }
         }
 
-        String[] labels = {"Título:", "Año:", "Estado:", "Autor:", "Biblioteca:"};
-        Component[] fields = {txtTitulo, txtAnio, cmbEstado, cmbAutor, cmbBiblioteca};
+        String[] labels = {"Título:", "Año:", "Estado (solo lectura):", "Autor:", "Biblioteca:"};
+        Component[] fields = {txtTitulo, txtAnio, txtEstado, cmbAutor, cmbBiblioteca};
         int res = Dialogs.showForm(parent, "Actualizar Libro", labels, fields);
         if (res != JOptionPane.OK_OPTION) return null;
 
         try {
             libro.setTitulo(txtTitulo.getText().trim());
             libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
-            libro.setEstado((String) cmbEstado.getSelectedItem());
 
             if (autores.size() > 0) {
                 String textoAutor = (String) cmbAutor.getSelectedItem();

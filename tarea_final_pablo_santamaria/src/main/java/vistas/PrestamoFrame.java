@@ -115,18 +115,6 @@ public class PrestamoFrame extends JFrame {
             return;
         }
 
-        String[] opcionesLector = new String[lectores.size()];
-        for (int i = 0; i < lectores.size(); i++) {
-            Lector lector = lectores.get(i);
-            opcionesLector[i] = lector.getIdLector() + " - " + lector.getNombre() + " " + lector.getApellido1();
-        }
-
-        String[] opcionesLibro = new String[librosDisponibles.size()];
-        for (int i = 0; i < librosDisponibles.size(); i++) {
-            Libro libro = librosDisponibles.get(i);
-            opcionesLibro[i] = libro.getIdLibro() + " - " + libro.getTitulo();
-        }
-
         Prestamo prestamo = PrestamoDialogs.showInsert(this, lectores, librosDisponibles);
         if (prestamo == null) {
             return;

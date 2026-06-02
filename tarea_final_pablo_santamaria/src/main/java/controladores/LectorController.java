@@ -28,12 +28,12 @@ public class LectorController extends AbstractCrudController<Lector, Integer> {
             Lector lector = entityManager.find(Lector.class, idLector);
             if (lector != null) {
                 long prestamos = (long) entityManager.createQuery(
-                        "SELECT COUNT(p) FROM Prestamo p WHERE p.lector.idLector = :id")
+                        "SELECT COUNT(p) FROM Prestamo p WHERE p.lector.idLector = :id AND p.fechaFin IS NULL")
                         .setParameter("id", idLector)
                         .getSingleResult();
                 if (prestamos > 0) {
                     throw new IllegalStateException(
-                            "No se puede eliminar: el lector tiene " + prestamos + " préstamo(s) asociado(s).");
+                            "No se puede eliminar: el lector tiene " + prestamos + " préstamo(s) activo(s) sin devolver.");
                 }
                 entityManager.remove(lector);
                 System.out.println("Lector eliminado");
