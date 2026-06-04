@@ -17,6 +17,7 @@ public class PrestamoController extends AbstractCrudController<Prestamo, Integer
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
+            prestamo.setIdPrestamo(siguienteId("idPrestamo"));
             entityManager.persist(prestamo);
             // Al crear un préstamo, marcamos el libro como "prestado" automáticamente
             if (prestamo.getLibro() != null) {

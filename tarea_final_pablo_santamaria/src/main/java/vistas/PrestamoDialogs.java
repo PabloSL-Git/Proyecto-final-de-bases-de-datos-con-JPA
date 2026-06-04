@@ -32,12 +32,11 @@ public class PrestamoDialogs {
             opcionesLibro[i] = l.getIdLibro() + " - " + l.getTitulo();
         }
 
-        JTextField txtId = new JTextField();
         JTextField txtFecha = new JTextField(LocalDate.now().toString());
         JComboBox<String> cmbLector = new JComboBox<>(opcionesLector);
         JComboBox<String> cmbLibro = new JComboBox<>(opcionesLibro);
-        String[] labels = {"ID préstamo:", "Fecha inicio (yyyy-mm-dd):", "Lector:", "Libro (solo disponibles):"};
-        Component[] fields = {txtId, txtFecha, cmbLector, cmbLibro};
+        String[] labels = {"Fecha inicio (yyyy-mm-dd):", "Lector:", "Libro (solo disponibles):"};
+        Component[] fields = {txtFecha, cmbLector, cmbLibro};
         int res = Dialogs.showForm(parent, "Nuevo Préstamo", labels, fields);
         if (res != JOptionPane.OK_OPTION) return null;
 
@@ -48,7 +47,6 @@ public class PrestamoDialogs {
             int idLibro = Integer.parseInt(textoLibro.split(" - ")[0]);
 
             Prestamo p = new Prestamo();
-            p.setIdPrestamo(Integer.parseInt(txtId.getText().trim()));
             p.setFechaInicio(LocalDate.parse(txtFecha.getText().trim()));
             p.setFechaFin(null);
             p.setLector(lectores.stream().filter(l -> l.getIdLector() == idLector).findFirst().orElse(null));

@@ -65,4 +65,16 @@ public abstract class AbstractCrudController<T, ID> {
             em.close();
         }
     }
+
+    protected int siguienteId(String campo) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            Number max = (Number) em.createQuery(
+                    "SELECT MAX(e." + campo + ") FROM " + entityClass.getSimpleName() + " e")
+                    .getSingleResult();
+            return max == null ? 1 : max.intValue() + 1;
+        } finally {
+            em.close();
+        }
+    }
 }

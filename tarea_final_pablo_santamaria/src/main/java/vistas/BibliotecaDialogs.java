@@ -8,27 +8,20 @@ import java.awt.*;
 public class BibliotecaDialogs {
 
     public static Biblioteca showInsert(Component parent) {
-        JTextField txtId = new JTextField();
         JTextField txtNombre = new JTextField();
         JTextField txtDireccion = new JTextField();
 
-        String[] labels = {"ID:", "Nombre:", "Dirección:"};
-        Component[] fields = {txtId, txtNombre, txtDireccion};
+        String[] labels = {"Nombre:", "Dirección:"};
+        Component[] fields = {txtNombre, txtDireccion};
         int res = Dialogs.showForm(parent, "Insertar Biblioteca", labels, fields);
         if (res != JOptionPane.OK_OPTION) {
             return null;
         }
 
-        try {
-            Biblioteca biblioteca = new Biblioteca();
-            biblioteca.setIdBiblioteca(Integer.parseInt(txtId.getText().trim()));
-            biblioteca.setNombre(txtNombre.getText().trim());
-            biblioteca.setDireccion(txtDireccion.getText().trim());
-            return biblioteca;
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(parent, "El ID debe ser un número entero");
-            return null;
-        }
+        Biblioteca biblioteca = new Biblioteca();
+        biblioteca.setNombre(txtNombre.getText().trim());
+        biblioteca.setDireccion(txtDireccion.getText().trim());
+        return biblioteca;
     }
 
     public static Biblioteca showUpdate(Component parent, Biblioteca b) {

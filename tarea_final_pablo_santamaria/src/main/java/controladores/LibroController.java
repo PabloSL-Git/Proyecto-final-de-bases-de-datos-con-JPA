@@ -8,6 +8,12 @@ public class LibroController extends AbstractCrudController<Libro, Integer> {
         super(Libro.class);
     }
 
+    @Override
+    public void insertar(Libro libro) {
+        libro.setIdLibro(siguienteId("idLibro"));
+        super.insertar(libro);
+    }
+
     public void borrarLibro(int idLibro) {
         var entityManager = utilidades.JPAUtil.getEntityManager();
         var transaction = entityManager.getTransaction();

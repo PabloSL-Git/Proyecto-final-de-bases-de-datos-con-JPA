@@ -21,7 +21,6 @@ public class LectorDialogs {
             opcionesBiblioteca[i] = biblioteca.getIdBiblioteca() + " - " + biblioteca.getNombre();
         }
 
-        JTextField txtId = new JTextField();
         JTextField txtNombre = new JTextField();
         JTextField txtAp1 = new JTextField();
         JTextField txtAp2 = new JTextField();
@@ -29,30 +28,24 @@ public class LectorDialogs {
         JTextField txtTel = new JTextField();
         JComboBox<String> cmbBiblioteca = new JComboBox<>(opcionesBiblioteca);
 
-        String[] labels = {"ID:", "Nombre:", "Apellido 1:", "Apellido 2 (opcional):", "Email:", "Teléfono:", "Biblioteca:"};
-        Component[] fields = {txtId, txtNombre, txtAp1, txtAp2, txtEmail, txtTel, cmbBiblioteca};
+        String[] labels = {"Nombre:", "Apellido 1:", "Apellido 2 (opcional):", "Email:", "Teléfono:", "Biblioteca:"};
+        Component[] fields = {txtNombre, txtAp1, txtAp2, txtEmail, txtTel, cmbBiblioteca};
         int res = Dialogs.showForm(parent, "Insertar Lector", labels, fields);
         if (res != JOptionPane.OK_OPTION) {
             return null;
         }
 
-        try {
-            String textoBiblioteca = (String) cmbBiblioteca.getSelectedItem();
-            int idBiblioteca = Integer.parseInt(textoBiblioteca.split(" - ")[0]);
+        String textoBiblioteca = (String) cmbBiblioteca.getSelectedItem();
+        int idBiblioteca = Integer.parseInt(textoBiblioteca.split(" - ")[0]);
 
-            Lector lector = new Lector();
-            lector.setIdLector(Integer.parseInt(txtId.getText().trim()));
-            lector.setNombre(txtNombre.getText().trim());
-            lector.setApellido1(txtAp1.getText().trim());
-            lector.setApellido2(Dialogs.textOrNull(txtAp2));
-            lector.setEmail(Dialogs.textOrNull(txtEmail));
-            lector.setTelefono(Dialogs.textOrNull(txtTel));
-            lector.setBiblioteca(bibliotecas.stream().filter(biblioteca -> biblioteca.getIdBiblioteca() == idBiblioteca).findFirst().orElse(null));
-            return lector;
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(parent, "El ID debe ser un número entero");
-            return null;
-        }
+        Lector lector = new Lector();
+        lector.setNombre(txtNombre.getText().trim());
+        lector.setApellido1(txtAp1.getText().trim());
+        lector.setApellido2(Dialogs.textOrNull(txtAp2));
+        lector.setEmail(Dialogs.textOrNull(txtEmail));
+        lector.setTelefono(Dialogs.textOrNull(txtTel));
+        lector.setBiblioteca(bibliotecas.stream().filter(biblioteca -> biblioteca.getIdBiblioteca() == idBiblioteca).findFirst().orElse(null));
+        return lector;
     }
 
     public static Lector showUpdate(Component parent, Lector l, List<Biblioteca> bibliotecas) {

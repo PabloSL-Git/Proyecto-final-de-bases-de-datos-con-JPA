@@ -18,7 +18,6 @@ public class LibroDialogs {
         List<Autor> autores = autorController.listar();
         List<Biblioteca> bibliotecas = bibliotecaController.listar();
 
-        JTextField txtId = new JTextField();
         JTextField txtTitulo = new JTextField();
         JTextField txtAnio = new JTextField();
 
@@ -36,14 +35,13 @@ public class LibroDialogs {
         }
         JComboBox<String> cmbBiblioteca = new JComboBox<>(opcionesBiblioteca);
 
-        String[] labels = {"ID:", "Título:", "Año publicación:", "Autor:", "Biblioteca:"};
-        Component[] fields = {txtId, txtTitulo, txtAnio, cmbAutor, cmbBiblioteca};
+        String[] labels = {"Título:", "Año publicación:", "Autor:", "Biblioteca:"};
+        Component[] fields = {txtTitulo, txtAnio, cmbAutor, cmbBiblioteca};
         int res = Dialogs.showForm(parent, "Insertar Libro", labels, fields);
         if (res != JOptionPane.OK_OPTION) return null;
 
         try {
             Libro libro = new Libro();
-            libro.setIdLibro(Integer.parseInt(txtId.getText().trim()));
             libro.setTitulo(txtTitulo.getText().trim());
             libro.setAnioPublicacion(Integer.parseInt(txtAnio.getText().trim()));
             libro.setEstado("disponible");
@@ -60,7 +58,7 @@ public class LibroDialogs {
             }
             return libro;
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(parent, "ID y Año deben ser números enteros");
+            JOptionPane.showMessageDialog(parent, "El año debe ser un número entero");
             return null;
         }
     }

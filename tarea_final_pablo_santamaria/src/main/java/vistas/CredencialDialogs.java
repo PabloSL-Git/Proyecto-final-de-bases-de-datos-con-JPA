@@ -21,12 +21,10 @@ public class CredencialDialogs {
             opciones[i] = lector.getIdLector() + " - " + lector.getNombre() + " " + lector.getApellido1();
         }
 
-        JTextField txtId = new JTextField();
-        JTextField txtTarj = new JTextField();
         JTextField txtFecha = new JTextField(LocalDate.now().toString());
         JComboBox<String> cmbLector = new JComboBox<>(opciones);
-        String[] labels = {"ID:", "Número de tarjeta:", "Fecha emisión (yyyy-mm-dd):", "Lector:"};
-        Component[] fields = {txtId, txtTarj, txtFecha, cmbLector};
+        String[] labels = {"Fecha emisión (yyyy-mm-dd):", "Lector:"};
+        Component[] fields = {txtFecha, cmbLector};
         int res = Dialogs.showForm(parent, "Insertar Credencial", labels, fields);
         if (res != JOptionPane.OK_OPTION) {
             return null;
@@ -36,13 +34,11 @@ public class CredencialDialogs {
             String seleccion = (String) cmbLector.getSelectedItem();
             int idLector = Integer.parseInt(seleccion.split(" - ")[0]);
             Credencial credencial = new Credencial();
-            credencial.setIdCredencial(Integer.parseInt(txtId.getText().trim()));
-            credencial.setNumeroTarjeta(txtTarj.getText().trim());
             credencial.setFechaEmision(LocalDate.parse(txtFecha.getText().trim()));
             credencial.setLector(lectores.stream().filter(lector -> lector.getIdLector() == idLector).findFirst().orElse(null));
             return credencial;
         } catch (Exception excepcion) {
-            JOptionPane.showMessageDialog(parent, "Datos inválidos (ID/fecha)");
+            JOptionPane.showMessageDialog(parent, "Datos inválidos (fecha)");
             return null;
         }
     }

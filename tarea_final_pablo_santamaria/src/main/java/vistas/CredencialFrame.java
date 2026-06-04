@@ -1,7 +1,6 @@
 package vistas;
 
 import controladores.CredencialController;
-import controladores.LectorController;
 import modelos.entidades.Credencial;
 import modelos.entidades.Lector;
 
@@ -13,7 +12,6 @@ import java.util.List;
 public class CredencialFrame extends JFrame {
 
     private final CredencialController controller = new CredencialController();
-    private final LectorController lectorController = new LectorController();
     private JTextArea textArea;
 
     public CredencialFrame() {
@@ -77,7 +75,11 @@ public class CredencialFrame extends JFrame {
     }
 
     private void insertar() {
-        List<Lector> lectores = lectorController.listar();
+        List<Lector> lectores = controller.listarLectoresSinCredencial();
+        if (lectores.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Todos los lectores ya tienen una credencial asignada.");
+            return;
+        }
         Credencial credencial = CredencialDialogs.showInsert(this, lectores);
         if (credencial == null) {
             return;
@@ -87,6 +89,8 @@ public class CredencialFrame extends JFrame {
             controller.insertar(credencial);
             JOptionPane.showMessageDialog(this, "Credencial insertada correctamente");
             listar();
+        } catch (IllegalStateException excepcionEstado) {
+            JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede insertar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al insertar credencial");
             excepcion.printStackTrace();
@@ -136,6 +140,8 @@ public class CredencialFrame extends JFrame {
             listar();
         } catch (NumberFormatException excepcion) {
             JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
+        } catch (IllegalStateException excepcionEstado) {
+            JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar credencial");
             excepcion.printStackTrace();

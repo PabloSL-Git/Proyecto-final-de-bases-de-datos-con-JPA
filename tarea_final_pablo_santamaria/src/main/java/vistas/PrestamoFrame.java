@@ -94,10 +94,14 @@ public class PrestamoFrame extends JFrame {
     }
 
     private void nuevoPrestamo() {
-        List<Lector> lectores = lectorController.listar();
+        List<Lector> todosLosLectores = lectorController.listar();
+        List<Lector> lectores = new ArrayList<>();
+        for (Lector lector : todosLosLectores) {
+            if (lector.getCredencial() != null) {
+                lectores.add(lector);
+            }
+        }
 
-        // Filtramos solo los libros con estado "disponible"
-        // No tiene sentido prestar un libro que ya está prestado
         List<Libro> todosLosLibros = libroController.listar();
         List<Libro> librosDisponibles = new ArrayList<>();
         for (Libro libro : todosLosLibros) {
@@ -107,7 +111,7 @@ public class PrestamoFrame extends JFrame {
         }
 
         if (lectores.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No hay lectores registrados.");
+            JOptionPane.showMessageDialog(this, "No hay lectores con credencial. Asigna una credencial antes de crear un préstamo.", "Sin credencial", JOptionPane.WARNING_MESSAGE);
             return;
         }
         if (librosDisponibles.isEmpty()) {

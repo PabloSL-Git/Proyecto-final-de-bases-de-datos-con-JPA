@@ -8,6 +8,12 @@ public class LectorController extends AbstractCrudController<Lector, Integer> {
         super(Lector.class);
     }
 
+    @Override
+    public void insertar(Lector lector) {
+        lector.setIdLector(siguienteId("idLector"));
+        super.insertar(lector);
+    }
+
     public void borrarLector(int idLector) {
         var entityManager = utilidades.JPAUtil.getEntityManager();
         var transaction = entityManager.getTransaction();

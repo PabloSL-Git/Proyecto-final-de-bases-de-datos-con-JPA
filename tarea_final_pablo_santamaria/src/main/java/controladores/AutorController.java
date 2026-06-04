@@ -8,6 +8,12 @@ public class AutorController extends AbstractCrudController<Autor, Integer> {
         super(Autor.class);
     }
 
+    @Override
+    public void insertar(Autor autor) {
+        autor.setIdAutor(siguienteId("idAutor"));
+        super.insertar(autor);
+    }
+
     public void borrarAutor(int idAutor) {
         var entityManager = utilidades.JPAUtil.getEntityManager();
         var transaction = entityManager.getTransaction();
