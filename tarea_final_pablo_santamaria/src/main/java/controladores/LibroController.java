@@ -30,7 +30,8 @@ public class LibroController extends AbstractCrudController<Libro, Integer> {
                             "No se puede eliminar: el libro tiene "
                                     + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
                 }
-                entityManager.createQuery("DELETE FROM Prestamo p WHERE p.libro.idLibro = :id")
+                entityManager.createQuery(
+                        "UPDATE Prestamo p SET p.libro = null WHERE p.libro.idLibro = :id AND p.fechaFin IS NOT NULL")
                         .setParameter("id", idLibro)
                         .executeUpdate();
                 entityManager.remove(libro);
