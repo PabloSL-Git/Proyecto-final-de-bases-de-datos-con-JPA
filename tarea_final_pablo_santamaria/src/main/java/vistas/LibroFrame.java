@@ -4,17 +4,19 @@ import controladores.LibroController;
 import modelos.entidades.Libro;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
 public class LibroFrame extends JFrame {
 
     private final LibroController controller = new LibroController();
-    private JTextArea textArea;
+    private JTable tabla;
+    private DefaultTableModel modelo;
 
     public LibroFrame() {
         setTitle("Gestión de Libros");
-        setSize(900, 500);
+        setSize(1000, 500);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         initComponents();
@@ -36,9 +38,14 @@ public class LibroFrame extends JFrame {
         botones.add(btnEliminar);
         panel.add(botones, BorderLayout.NORTH);
 
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        String[] columnas = {"ID", "Título", "Año", "Estado", "Autor", "Biblioteca"};
+        modelo = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tabla = new JTable(modelo);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        panel.add(new JScrollPane(tabla), BorderLayout.CENTER);
         add(panel);
 
         btnListar.addActionListener(evento -> listar());
@@ -48,42 +55,38 @@ public class LibroFrame extends JFrame {
     }
 
     private void listar() {
+        modelo.setRowCount(0);
         List<Libro> libros = controller.listar();
-        textArea.setText("");
-        if (libros.isEmpty()) {
-            textArea.append("No hay libros registrados.\n");
-            return;
-        }
         for (Libro libro : libros) {
-            String nombreAutor;
-            if (libro.getAutor() != null) {
-                nombreAutor = libro.getAutor().getNombre() + " " + libro.getAutor().getApellido1();
-            } else {
-                nombreAutor = "-";
-            }
-
-            String nombreBiblioteca;
-            if (libro.getBiblioteca() != null) {
-                nombreBiblioteca = libro.getBiblioteca().getNombre();
-            } else {
-                nombreBiblioteca = "-";
-            }
-
-            textArea.append("ID: " + libro.getIdLibro()
-                    + " | " + libro.getTitulo()
-                    + " (" + libro.getAnioPublicacion() + ")"
-                    + " | Estado: " + libro.getEstado()
-                    + " | Autor: " + nombreAutor
-                    + " | Biblioteca: " + nombreBiblioteca + "\n");
+            String autor = libro.getAutor() != null
+                    ? libro.getAutor().getNombre() + " " + libro.getAutor().getApellido1()
+                    : "-";
+            String biblioteca = libro.getBiblioteca() != null
+                    ? libro.getBiblioteca().getNombre()
+                    : "-";
+            modelo.addRow(new Object[]{
+                libro.getIdLibro(),
+                libro.getTitulo(),
+                libro.getAnioPublicacion(),
+                libro.getEstado(),
+                autor,
+                biblioteca
+            });
         }
+    }
+
+    private int getIdSeleccionado() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un libro de la tabla primero.");
+            return -1;
+        }
+        return (int) modelo.getValueAt(fila, 0);
     }
 
     private void abrirInsertar() {
         Libro libro = LibroDialogs.showInsert(this);
-        if (libro == null) {
-            return;
-        }
-
+        if (libro == null) return;
         try {
             controller.insertar(libro);
             JOptionPane.showMessageDialog(this, "Libro insertado correctamente");
@@ -95,43 +98,33 @@ public class LibroFrame extends JFrame {
     }
 
     private void abrirActualizar() {
-        String input = JOptionPane.showInputDialog(this, "ID del libro a actualizar:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             Libro libro = controller.buscarPorId(id);
             if (libro == null) {
                 JOptionPane.showMessageDialog(this, "Libro no encontrado");
                 return;
             }
             Libro libroActualizado = LibroDialogs.showUpdate(this, libro);
-            if (libroActualizado == null) {
-                return;
-            }
+            if (libroActualizado == null) return;
             controller.actualizar(libroActualizado);
             JOptionPane.showMessageDialog(this, "Libro actualizado correctamente");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
+        } catch (Exception excepcion) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar libro");
+            excepcion.printStackTrace();
         }
     }
 
     private void eliminar() {
-        String input = JOptionPane.showInputDialog(this, "ID del libro a eliminar:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             controller.borrarLibro(id);
             JOptionPane.showMessageDialog(this, "Libro eliminado correctamente");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (IllegalStateException excepcionEstado) {
-            // El controlador lanza esta excepción si el libro tiene préstamos activos
             JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar libro");

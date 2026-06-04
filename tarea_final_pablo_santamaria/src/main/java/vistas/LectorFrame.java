@@ -6,6 +6,7 @@ import modelos.entidades.Biblioteca;
 import modelos.entidades.Lector;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
@@ -13,11 +14,12 @@ public class LectorFrame extends JFrame {
 
     private final LectorController controller = new LectorController();
     private final BibliotecaController bibliotecaController = new BibliotecaController();
-    private JTextArea textArea;
+    private JTable tabla;
+    private DefaultTableModel modelo;
 
     public LectorFrame() {
         setTitle("Gestión de Lectores");
-        setSize(900, 500);
+        setSize(1000, 500);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         initComponents();
@@ -39,9 +41,14 @@ public class LectorFrame extends JFrame {
         botones.add(btnEliminar);
         panel.add(botones, BorderLayout.NORTH);
 
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        String[] columnas = {"ID", "Nombre", "Apellido 1", "Apellido 2", "Email", "Teléfono", "Biblioteca", "Credencial"};
+        modelo = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tabla = new JTable(modelo);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        panel.add(new JScrollPane(tabla), BorderLayout.CENTER);
         add(panel);
 
         btnListar.addActionListener(e -> listar());
@@ -51,55 +58,35 @@ public class LectorFrame extends JFrame {
     }
 
     private void listar() {
+        modelo.setRowCount(0);
         List<Lector> lectores = controller.listar();
-        textArea.setText("");
-        if (lectores.isEmpty()) {
-            textArea.append("No hay lectores registrados.\n");
-            return;
-        }
         for (Lector lector : lectores) {
-            String apellido2;
-            if (lector.getApellido2() != null) {
-                apellido2 = " " + lector.getApellido2();
-            } else {
-                apellido2 = "";
-            }
-            String email;
-            if (lector.getEmail() != null) {
-                email = lector.getEmail();
-            } else {
-                email = "-";
-            }
-
-            String telefono;
-            if (lector.getTelefono() != null) {
-                telefono = lector.getTelefono();
-            } else {
-                telefono = "-";
-            }
-
-            String nombreBiblioteca;
-            if (lector.getBiblioteca() != null) {
-                nombreBiblioteca = lector.getBiblioteca().getNombre();
-            } else {
-                nombreBiblioteca = "-";
-            }
-
-            textArea.append("ID: " + lector.getIdLector()
-                    + " | " + lector.getNombre() + " " + lector.getApellido1() + apellido2
-                    + " | Email: " + email
-                    + " | Tel: " + telefono
-                    + " | Biblioteca: " + nombreBiblioteca + "\n");
+            modelo.addRow(new Object[]{
+                lector.getIdLector(),
+                lector.getNombre(),
+                lector.getApellido1(),
+                lector.getApellido2() != null ? lector.getApellido2() : "-",
+                lector.getEmail() != null ? lector.getEmail() : "-",
+                lector.getTelefono() != null ? lector.getTelefono() : "-",
+                lector.getBiblioteca() != null ? lector.getBiblioteca().getNombre() : "-",
+                lector.getCredencial() != null ? lector.getCredencial().getNumeroTarjeta() : "Sin credencial"
+            });
         }
+    }
+
+    private int getIdSeleccionado() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un lector de la tabla primero.");
+            return -1;
+        }
+        return (int) modelo.getValueAt(fila, 0);
     }
 
     private void insertar() {
         List<Biblioteca> bibliotecas = bibliotecaController.listar();
         Lector lector = LectorDialogs.showInsert(this, bibliotecas);
-        if (lector == null) {
-            return;
-        }
-
+        if (lector == null) return;
         try {
             controller.insertar(lector);
             JOptionPane.showMessageDialog(this, "Lector insertado correctamente");
@@ -111,29 +98,20 @@ public class LectorFrame extends JFrame {
     }
 
     private void actualizar() {
-        String input = JOptionPane.showInputDialog(this, "ID del lector a actualizar:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             Lector lector = controller.buscarPorId(id);
             if (lector == null) {
                 JOptionPane.showMessageDialog(this, "Lector no encontrado");
                 return;
             }
-
             List<Biblioteca> bibliotecas = bibliotecaController.listar();
             Lector updated = LectorDialogs.showUpdate(this, lector, bibliotecas);
-            if (updated == null) {
-                return;
-            }
-
+            if (updated == null) return;
             controller.actualizar(updated);
             JOptionPane.showMessageDialog(this, "Lector actualizado correctamente");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al actualizar lector");
             excepcion.printStackTrace();
@@ -141,17 +119,12 @@ public class LectorFrame extends JFrame {
     }
 
     private void eliminar() {
-        String input = JOptionPane.showInputDialog(this, "ID del lector a eliminar:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             controller.borrarLector(id);
             JOptionPane.showMessageDialog(this, "Lector eliminado correctamente");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (IllegalStateException excepcionEstado) {
             JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception excepcion) {

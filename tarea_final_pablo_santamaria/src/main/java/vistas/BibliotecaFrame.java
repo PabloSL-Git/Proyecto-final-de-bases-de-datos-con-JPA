@@ -4,13 +4,15 @@ import controladores.BibliotecaController;
 import modelos.entidades.Biblioteca;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
 public class BibliotecaFrame extends JFrame {
 
     private final BibliotecaController controller = new BibliotecaController();
-    private JTextArea textArea;
+    private JTable tabla;
+    private DefaultTableModel modelo;
 
     public BibliotecaFrame() {
         setTitle("Gestión de Bibliotecas");
@@ -36,9 +38,14 @@ public class BibliotecaFrame extends JFrame {
         botones.add(btnEliminar);
         panel.add(botones, BorderLayout.NORTH);
 
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        String[] columnas = {"ID", "Nombre", "Dirección"};
+        modelo = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tabla = new JTable(modelo);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        panel.add(new JScrollPane(tabla), BorderLayout.CENTER);
         add(panel);
 
         btnListar.addActionListener(e -> listar());
@@ -48,30 +55,29 @@ public class BibliotecaFrame extends JFrame {
     }
 
     private void listar() {
+        modelo.setRowCount(0);
         List<Biblioteca> bibliotecas = controller.listar();
-        textArea.setText("");
-        if (bibliotecas.isEmpty()) {
-            textArea.append("No hay bibliotecas registradas.\n");
-            return;
-        }
         for (Biblioteca biblioteca : bibliotecas) {
-            String direccion = "-";
-            if (biblioteca.getDireccion() != null) {
-                direccion = biblioteca.getDireccion();
-            }
-
-            textArea.append("ID: " + biblioteca.getIdBiblioteca()
-                    + " | " + biblioteca.getNombre()
-                    + " | Dirección: " + direccion + "\n");
+            modelo.addRow(new Object[]{
+                biblioteca.getIdBiblioteca(),
+                biblioteca.getNombre(),
+                biblioteca.getDireccion() != null ? biblioteca.getDireccion() : "-"
+            });
         }
+    }
+
+    private int getIdSeleccionado() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona una biblioteca de la tabla primero.");
+            return -1;
+        }
+        return (int) modelo.getValueAt(fila, 0);
     }
 
     private void insertar() {
         Biblioteca biblioteca = BibliotecaDialogs.showInsert(this);
-        if (biblioteca == null) {
-            return;
-        }
-
+        if (biblioteca == null) return;
         try {
             controller.insertar(biblioteca);
             JOptionPane.showMessageDialog(this, "Biblioteca insertada correctamente");
@@ -83,30 +89,19 @@ public class BibliotecaFrame extends JFrame {
     }
 
     private void actualizar() {
-        String input = JOptionPane.showInputDialog(this, "ID de la biblioteca a actualizar:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
-
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             Biblioteca biblioteca = controller.buscarPorId(id);
-
             if (biblioteca == null) {
                 JOptionPane.showMessageDialog(this, "Biblioteca no encontrada");
                 return;
             }
-
             Biblioteca updatedBiblioteca = BibliotecaDialogs.showUpdate(this, biblioteca);
-            if (updatedBiblioteca == null) {
-                return;
-            }
-
+            if (updatedBiblioteca == null) return;
             controller.actualizar(updatedBiblioteca);
             JOptionPane.showMessageDialog(this, "Biblioteca actualizada correctamente");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al actualizar biblioteca");
             excepcion.printStackTrace();
@@ -114,18 +109,12 @@ public class BibliotecaFrame extends JFrame {
     }
 
     private void eliminar() {
-        String input = JOptionPane.showInputDialog(this, "ID de la biblioteca a eliminar:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
-
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             controller.borrarBiblioteca(id);
             JOptionPane.showMessageDialog(this, "Biblioteca eliminada correctamente");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (IllegalStateException excepcionEstado) {
             JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception excepcion) {

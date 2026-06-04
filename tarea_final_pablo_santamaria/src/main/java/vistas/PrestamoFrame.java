@@ -8,6 +8,7 @@ import modelos.entidades.Libro;
 import modelos.entidades.Prestamo;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,7 +19,8 @@ public class PrestamoFrame extends JFrame {
     private final PrestamoController controller = new PrestamoController();
     private final LibroController libroController = new LibroController();
     private final LectorController lectorController = new LectorController();
-    private JTextArea textArea;
+    private JTable tabla;
+    private DefaultTableModel modelo;
 
     public PrestamoFrame() {
         setTitle("Gestión de Préstamos");
@@ -44,9 +46,14 @@ public class PrestamoFrame extends JFrame {
         botones.add(btnEliminar);
         panel.add(botones, BorderLayout.NORTH);
 
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        String[] columnas = {"ID", "Lector", "Libro", "Fecha Inicio", "Estado"};
+        modelo = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tabla = new JTable(modelo);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        panel.add(new JScrollPane(tabla), BorderLayout.CENTER);
         add(panel);
 
         btnListar.addActionListener(evento -> listar());
@@ -56,41 +63,35 @@ public class PrestamoFrame extends JFrame {
     }
 
     private void listar() {
+        modelo.setRowCount(0);
         List<Prestamo> prestamos = controller.listar();
-        textArea.setText("");
-        if (prestamos.isEmpty()) {
-            textArea.append("No hay préstamos registrados.\n");
-            return;
-        }
         for (Prestamo prestamo : prestamos) {
-            String nombreLector;
-            if (prestamo.getLector() != null) {
-                nombreLector = prestamo.getLector().getNombre() + " " + prestamo.getLector().getApellido1();
-            } else {
-                nombreLector = "-";
-            }
-
-            String tituloLibro;
-            if (prestamo.getLibro() != null) {
-                tituloLibro = prestamo.getLibro().getTitulo();
-            } else {
-                tituloLibro = "-";
-            }
-
-            // Si fecha_fin es null el préstamo está activo; si tiene fecha, ya fue devuelto
-            String estadoPrestamo;
-            if (prestamo.getFechaFin() == null) {
-                estadoPrestamo = "ACTIVO";
-            } else {
-                estadoPrestamo = "Devuelto el " + prestamo.getFechaFin();
-            }
-
-            textArea.append("ID: " + prestamo.getIdPrestamo()
-                    + " | Lector: " + nombreLector
-                    + " | Libro: " + tituloLibro
-                    + " | Inicio: " + prestamo.getFechaInicio()
-                    + " | Estado: " + estadoPrestamo + "\n");
+            String lector = prestamo.getLector() != null
+                    ? prestamo.getLector().getNombre() + " " + prestamo.getLector().getApellido1()
+                    : "-";
+            String libro = prestamo.getLibro() != null
+                    ? prestamo.getLibro().getTitulo()
+                    : "(libro eliminado)";
+            String estado = prestamo.getFechaFin() == null
+                    ? "ACTIVO"
+                    : "Devuelto el " + prestamo.getFechaFin();
+            modelo.addRow(new Object[]{
+                prestamo.getIdPrestamo(),
+                lector,
+                libro,
+                prestamo.getFechaInicio(),
+                estado
+            });
         }
+    }
+
+    private int getIdSeleccionado() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un préstamo de la tabla primero.");
+            return -1;
+        }
+        return (int) modelo.getValueAt(fila, 0);
     }
 
     private void nuevoPrestamo() {
@@ -120,9 +121,7 @@ public class PrestamoFrame extends JFrame {
         }
 
         Prestamo prestamo = PrestamoDialogs.showInsert(this, lectores, librosDisponibles);
-        if (prestamo == null) {
-            return;
-        }
+        if (prestamo == null) return;
 
         try {
             controller.insertarPrestamo(prestamo);
@@ -135,35 +134,24 @@ public class PrestamoFrame extends JFrame {
     }
 
     private void registrarDevolucion() {
-        String input = JOptionPane.showInputDialog(this, "ID del préstamo a devolver:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             Prestamo p = controller.buscarPorId(id);
-
             if (p == null) {
                 JOptionPane.showMessageDialog(this, "Préstamo no encontrado");
                 return;
             }
-
-            // Si ya tiene fecha_fin, el libro ya fue devuelto anteriormente
             if (p.getFechaFin() != null) {
                 JOptionPane.showMessageDialog(this,
                         "Este préstamo ya fue devuelto el " + p.getFechaFin(),
                         "Ya devuelto", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-
-            // Ponemos la fecha de hoy como fecha de devolución
-            // El controlador actualizará el estado del libro a "disponible"
             p.setFechaFin(LocalDate.now());
             controller.actualizarPrestamo(p);
             JOptionPane.showMessageDialog(this, "Devolución registrada. El libro ahora está 'disponible'.");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al registrar devolución");
             excepcion.printStackTrace();
@@ -171,17 +159,12 @@ public class PrestamoFrame extends JFrame {
     }
 
     private void eliminar() {
-        String input = JOptionPane.showInputDialog(this, "ID del préstamo a eliminar:");
-        if (input == null || input.isBlank()) {
-            return;
-        }
+        int id = getIdSeleccionado();
+        if (id == -1) return;
         try {
-            int id = Integer.parseInt(input.trim());
             controller.borrarPrestamo(id);
             JOptionPane.showMessageDialog(this, "Préstamo eliminado correctamente");
             listar();
-        } catch (NumberFormatException excepcion) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero");
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar préstamo");
             excepcion.printStackTrace();
