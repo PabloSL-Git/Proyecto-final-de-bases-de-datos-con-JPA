@@ -15,8 +15,8 @@ public class LibroDialogs {
     public static Libro showInsert(Component parent) {
         AutorController autorController = new AutorController();
         BibliotecaController bibliotecaController = new BibliotecaController();
-        List<Autor> autores = autorController.listarAutores();
-        List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
+        List<Autor> autores = autorController.listar();
+        List<Biblioteca> bibliotecas = bibliotecaController.listar();
 
         JTextField txtId = new JTextField();
         JTextField txtTitulo = new JTextField();
@@ -69,8 +69,8 @@ public class LibroDialogs {
         if (libro == null) return null;
         AutorController autorController = new AutorController();
         BibliotecaController bibliotecaController = new BibliotecaController();
-        List<Autor> autores = autorController.listarAutores();
-        List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
+        List<Autor> autores = autorController.listar();
+        List<Biblioteca> bibliotecas = bibliotecaController.listar();
 
         JTextField txtTitulo = new JTextField(libro.getTitulo());
         JTextField txtAnio = new JTextField(String.valueOf(libro.getAnioPublicacion()));

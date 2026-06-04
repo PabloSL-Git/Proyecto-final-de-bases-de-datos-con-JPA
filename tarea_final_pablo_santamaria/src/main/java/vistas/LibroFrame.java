@@ -48,7 +48,7 @@ public class LibroFrame extends JFrame {
     }
 
     private void listar() {
-        List<Libro> libros = controller.listarLibros();
+        List<Libro> libros = controller.listar();
         textArea.setText("");
         if (libros.isEmpty()) {
             textArea.append("No hay libros registrados.\n");
@@ -85,7 +85,7 @@ public class LibroFrame extends JFrame {
         }
 
         try {
-            controller.insertarLibro(libro);
+            controller.insertar(libro);
             JOptionPane.showMessageDialog(this, "Libro insertado correctamente");
             listar();
         } catch (Exception excepcion) {
@@ -110,7 +110,7 @@ public class LibroFrame extends JFrame {
             if (libroActualizado == null) {
                 return;
             }
-            controller.actualizarLibro(libroActualizado);
+            controller.actualizar(libroActualizado);
             JOptionPane.showMessageDialog(this, "Libro actualizado correctamente");
             listar();
         } catch (NumberFormatException excepcion) {

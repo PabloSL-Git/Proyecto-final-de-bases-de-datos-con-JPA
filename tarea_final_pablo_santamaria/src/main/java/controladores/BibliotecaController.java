@@ -2,22 +2,10 @@ package controladores;
 
 import modelos.entidades.Biblioteca;
 
-import java.util.List;
-
 public class BibliotecaController extends AbstractCrudController<Biblioteca, Integer> {
 
     public BibliotecaController() {
         super(Biblioteca.class);
-    }
-
-    public void insertarBiblioteca(Biblioteca biblioteca) {
-        insertar(biblioteca);
-        System.out.println("Biblioteca insertada");
-    }
-
-    public void actualizarBiblioteca(Biblioteca biblioteca) {
-        actualizar(biblioteca);
-        System.out.println("Biblioteca actualizada");
     }
 
     public void borrarBiblioteca(int idBiblioteca) {
@@ -59,11 +47,4 @@ public class BibliotecaController extends AbstractCrudController<Biblioteca, Int
         }
     }
 
-    public List<Biblioteca> listarBibliotecas() {
-        return listar();
-    }
-
-    public Biblioteca buscarPorId(int idBiblioteca) {
-        return super.buscarPorId(idBiblioteca);
-    }
 }

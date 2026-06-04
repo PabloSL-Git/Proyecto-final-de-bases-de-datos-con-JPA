@@ -5,7 +5,6 @@ import jakarta.persistence.EntityTransaction;
 import modelos.entidades.Prestamo;
 import utilidades.JPAUtil;
 
-import java.util.List;
 
 public class PrestamoController extends AbstractCrudController<Prestamo, Integer> {
 
@@ -86,11 +85,4 @@ public class PrestamoController extends AbstractCrudController<Prestamo, Integer
         }
     }
 
-    public List<Prestamo> listarPrestamos() {
-        return listar();
-    }
-
-    public Prestamo buscarPorId(int idPrestamo) {
-        return super.buscarPorId(idPrestamo);
-    }
 }

@@ -48,7 +48,7 @@ public class BibliotecaFrame extends JFrame {
     }
 
     private void listar() {
-        List<Biblioteca> bibliotecas = controller.listarBibliotecas();
+        List<Biblioteca> bibliotecas = controller.listar();
         textArea.setText("");
         if (bibliotecas.isEmpty()) {
             textArea.append("No hay bibliotecas registradas.\n");
@@ -73,7 +73,7 @@ public class BibliotecaFrame extends JFrame {
         }
 
         try {
-            controller.insertarBiblioteca(biblioteca);
+            controller.insertar(biblioteca);
             JOptionPane.showMessageDialog(this, "Biblioteca insertada correctamente");
             listar();
         } catch (Exception excepcion) {
@@ -102,7 +102,7 @@ public class BibliotecaFrame extends JFrame {
                 return;
             }
 
-            controller.actualizarBiblioteca(updatedBiblioteca);
+            controller.actualizar(updatedBiblioteca);
             JOptionPane.showMessageDialog(this, "Biblioteca actualizada correctamente");
             listar();
         } catch (NumberFormatException excepcion) {

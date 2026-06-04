@@ -53,7 +53,7 @@ public class BackupManager {
     }
 
     private void exportarBibliotecas(String carpeta) throws Exception {
-        List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
+        List<Biblioteca> bibliotecas = bibliotecaController.listar();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/bibliotecas.csv"))) {
             pw.println("id,nombre,direccion");
             for (Biblioteca biblioteca : bibliotecas) {
@@ -63,7 +63,7 @@ public class BackupManager {
     }
 
     private void exportarAutores(String carpeta) throws Exception {
-        List<Autor> autores = autorController.listarAutores();
+        List<Autor> autores = autorController.listar();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/autores.csv"))) {
             pw.println("id,nombre,apellido1,apellido2,nacionalidad");
             for (Autor autor : autores) {
@@ -75,7 +75,7 @@ public class BackupManager {
     }
 
     private void exportarLibros(String carpeta) throws Exception {
-        List<Libro> libros = libroController.listarLibros();
+        List<Libro> libros = libroController.listar();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/libros.csv"))) {
             pw.println("id,titulo,anio,estado,id_autor,id_biblioteca");
             for (Libro libro : libros) {
@@ -101,7 +101,7 @@ public class BackupManager {
     }
 
     private void exportarLectores(String carpeta) throws Exception {
-        List<Lector> lectores = lectorController.listarLectores();
+        List<Lector> lectores = lectorController.listar();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/lectores.csv"))) {
             pw.println("id,nombre,apellido1,apellido2,email,telefono,id_biblioteca");
             for (Lector lector : lectores) {
@@ -120,7 +120,7 @@ public class BackupManager {
     }
 
     private void exportarCredenciales(String carpeta) throws Exception {
-        List<Credencial> credenciales = credencialController.listarCredenciales();
+        List<Credencial> credenciales = credencialController.listar();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/credenciales.csv"))) {
             pw.println("id,numero_tarjeta,fecha_emision,id_lector");
             for (Credencial credencial : credenciales) {
@@ -138,7 +138,7 @@ public class BackupManager {
     }
 
     private void exportarPrestamos(String carpeta) throws Exception {
-        List<Prestamo> prestamos = prestamoController.listarPrestamos();
+        List<Prestamo> prestamos = prestamoController.listar();
         try (PrintWriter pw = new PrintWriter(new FileWriter(carpeta + "/prestamos.csv"))) {
             pw.println("id,fecha_inicio,fecha_fin,id_lector,id_libro");
             for (Prestamo prestamo : prestamos) {

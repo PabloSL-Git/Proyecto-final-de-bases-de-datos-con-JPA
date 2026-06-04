@@ -52,7 +52,7 @@ public class CredencialFrame extends JFrame {
     }
 
     private void listar() {
-        List<Credencial> credenciales = controller.listarCredenciales();
+        List<Credencial> credenciales = controller.listar();
         textArea.setText("");
         if (credenciales.isEmpty()) {
             textArea.append("No hay credenciales registradas.\n");
@@ -77,14 +77,14 @@ public class CredencialFrame extends JFrame {
     }
 
     private void insertar() {
-        List<Lector> lectores = lectorController.listarLectores();
+        List<Lector> lectores = lectorController.listar();
         Credencial credencial = CredencialDialogs.showInsert(this, lectores);
         if (credencial == null) {
             return;
         }
 
         try {
-            controller.insertarCredencial(credencial);
+            controller.insertar(credencial);
             JOptionPane.showMessageDialog(this, "Credencial insertada correctamente");
             listar();
         } catch (Exception excepcion) {
@@ -111,7 +111,7 @@ public class CredencialFrame extends JFrame {
                 return;
             }
 
-            controller.actualizarCredencial(updatedCredencial);
+            controller.actualizar(updatedCredencial);
             JOptionPane.showMessageDialog(this, "Credencial actualizada correctamente");
             listar();
         } catch (NumberFormatException excepcion) {

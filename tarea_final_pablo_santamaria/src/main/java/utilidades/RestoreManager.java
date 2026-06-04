@@ -14,33 +14,22 @@ import java.util.List;
 
 public class RestoreManager {
 
-    // OBTENER ÚLTIMA COPIA
-
-    public String obtenerUltimaCopia() {
-        File dir = new File(".");
-        File[] files = dir.listFiles((directorio, name) -> name.startsWith("backup_"));
-
-        if (files == null || files.length == 0) {
-            return null;
-        }
-
+    private File[] obtenerCopias() {
+        File[] files = new File(".").listFiles((d, name) -> name.startsWith("backup_"));
+        if (files == null) return new File[0];
         Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
-        return files[0].getAbsolutePath();
+        return files;
     }
 
-
-    // LISTAR TODAS LAS COPIAS
+    public String obtenerUltimaCopia() {
+        File[] files = obtenerCopias();
+        return files.length > 0 ? files[0].getAbsolutePath() : null;
+    }
 
     public List<String> listarTodasLasCopias() {
         List<String> copias = new ArrayList<>();
-        File dir = new File(".");
-        File[] files = dir.listFiles((d, name) -> name.startsWith("backup_"));
-
-        if (files != null) {
-            Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
-            for (File copia : files) {
-                copias.add(copia.getAbsolutePath());
-            }
+        for (File copia : obtenerCopias()) {
+            copias.add(copia.getAbsolutePath());
         }
         return copias;
     }

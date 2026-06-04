@@ -51,7 +51,7 @@ public class LectorFrame extends JFrame {
     }
 
     private void listar() {
-        List<Lector> lectores = controller.listarLectores();
+        List<Lector> lectores = controller.listar();
         textArea.setText("");
         if (lectores.isEmpty()) {
             textArea.append("No hay lectores registrados.\n");
@@ -94,14 +94,14 @@ public class LectorFrame extends JFrame {
     }
 
     private void insertar() {
-        List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
+        List<Biblioteca> bibliotecas = bibliotecaController.listar();
         Lector lector = LectorDialogs.showInsert(this, bibliotecas);
         if (lector == null) {
             return;
         }
 
         try {
-            controller.insertarLector(lector);
+            controller.insertar(lector);
             JOptionPane.showMessageDialog(this, "Lector insertado correctamente");
             listar();
         } catch (Exception excepcion) {
@@ -123,13 +123,13 @@ public class LectorFrame extends JFrame {
                 return;
             }
 
-            List<Biblioteca> bibliotecas = bibliotecaController.listarBibliotecas();
+            List<Biblioteca> bibliotecas = bibliotecaController.listar();
             Lector updated = LectorDialogs.showUpdate(this, lector, bibliotecas);
             if (updated == null) {
                 return;
             }
 
-            controller.actualizarLector(updated);
+            controller.actualizar(updated);
             JOptionPane.showMessageDialog(this, "Lector actualizado correctamente");
             listar();
         } catch (NumberFormatException excepcion) {

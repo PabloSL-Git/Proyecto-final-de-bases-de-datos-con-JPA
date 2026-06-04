@@ -48,7 +48,7 @@ public class AutorFrame extends JFrame {
     }
 
     private void listar() {
-        List<Autor> autores = controller.listarAutores();
+        List<Autor> autores = controller.listar();
         textArea.setText("");
         if (autores.isEmpty()) {
             textArea.append("No hay autores registrados.\n");
@@ -83,7 +83,7 @@ public class AutorFrame extends JFrame {
         }
 
         try {
-            controller.insertarAutor(autor);
+            controller.insertar(autor);
             JOptionPane.showMessageDialog(this, "Autor insertado correctamente");
             listar();
         } catch (Exception excepcion) {
@@ -110,7 +110,7 @@ public class AutorFrame extends JFrame {
             if (autorActualizado == null) {
                 return;
             }
-            controller.actualizarAutor(autorActualizado);
+            controller.actualizar(autorActualizado);
             JOptionPane.showMessageDialog(this, "Autor actualizado correctamente");
             listar();
         } catch (NumberFormatException excepcion) {

@@ -2,22 +2,10 @@ package controladores;
 
 import modelos.entidades.Autor;
 
-import java.util.List;
-
 public class AutorController extends AbstractCrudController<Autor, Integer> {
 
     public AutorController() {
         super(Autor.class);
-    }
-
-    public void insertarAutor(Autor autor) {
-        insertar(autor);
-        System.out.println("Autor insertado");
-    }
-
-    public void actualizarAutor(Autor autor) {
-        actualizar(autor);
-        System.out.println("Autor actualizado");
     }
 
     public void borrarAutor(int idAutor) {
@@ -54,11 +42,4 @@ public class AutorController extends AbstractCrudController<Autor, Integer> {
         }
     }
 
-    public List<Autor> listarAutores() {
-        return listar();
-    }
-
-    public Autor buscarPorId(int idAutor) {
-        return super.buscarPorId(idAutor);
-    }
 }

@@ -56,7 +56,7 @@ public class PrestamoFrame extends JFrame {
     }
 
     private void listar() {
-        List<Prestamo> prestamos = controller.listarPrestamos();
+        List<Prestamo> prestamos = controller.listar();
         textArea.setText("");
         if (prestamos.isEmpty()) {
             textArea.append("No hay préstamos registrados.\n");
@@ -94,11 +94,11 @@ public class PrestamoFrame extends JFrame {
     }
 
     private void nuevoPrestamo() {
-        List<Lector> lectores = lectorController.listarLectores();
+        List<Lector> lectores = lectorController.listar();
 
         // Filtramos solo los libros con estado "disponible"
         // No tiene sentido prestar un libro que ya está prestado
-        List<Libro> todosLosLibros = libroController.listarLibros();
+        List<Libro> todosLosLibros = libroController.listar();
         List<Libro> librosDisponibles = new ArrayList<>();
         for (Libro libro : todosLosLibros) {
             if (libro.getEstado().equals("disponible")) {

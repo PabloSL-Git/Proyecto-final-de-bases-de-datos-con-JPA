@@ -2,22 +2,10 @@ package controladores;
 
 import modelos.entidades.Lector;
 
-import java.util.List;
-
 public class LectorController extends AbstractCrudController<Lector, Integer> {
 
     public LectorController() {
         super(Lector.class);
-    }
-
-    public void insertarLector(Lector lector) {
-        insertar(lector);
-        System.out.println("Lector insertado");
-    }
-
-    public void actualizarLector(Lector lector) {
-        actualizar(lector);
-        System.out.println("Lector actualizado");
     }
 
     public void borrarLector(int idLector) {
@@ -54,11 +42,4 @@ public class LectorController extends AbstractCrudController<Lector, Integer> {
         }
     }
 
-    public List<Lector> listarLectores() {
-        return listar();
-    }
-
-    public Lector buscarPorId(int idLector) {
-        return super.buscarPorId(idLector);
-    }
 }
