@@ -1,13 +1,13 @@
 package DAO;
 
 import modelos.entidades.Autor;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AutorDAO implements IAutorDAO {
 
+    // Devuelve todos los autores de la tabla
     @Override
     public List<Autor> obtenerTodos() {
         List<Autor> lista = new ArrayList<>();
@@ -16,7 +16,7 @@ public class AutorDAO implements IAutorDAO {
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                lista.add(mapear(rs));
+                lista.add(mapear(rs)); // convierte cada fila en un objeto Autor
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al obtener autores", e);
@@ -24,6 +24,7 @@ public class AutorDAO implements IAutorDAO {
         return lista;
     }
 
+    // Busca un autor por su ID, devuelve null si no existe
     @Override
     public Autor buscarPorId(int id) {
         String sql = "SELECT * FROM Autor WHERE id_autor = ?";
@@ -31,7 +32,9 @@ public class AutorDAO implements IAutorDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return mapear(rs);
+                if (rs.next()) {
+                    return mapear(rs);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al buscar autor", e);
@@ -39,6 +42,7 @@ public class AutorDAO implements IAutorDAO {
         return null;
     }
 
+    // Inserta un nuevo autor en la tabla
     @Override
     public void insertar(Autor autor) {
         String sql = "INSERT INTO Autor (id_autor, nombre, apellido1, apellido2, nacionalidad) VALUES (?, ?, ?, ?, ?)";
@@ -55,6 +59,7 @@ public class AutorDAO implements IAutorDAO {
         }
     }
 
+    // Borra el autor con ese ID. Lanza error si no existe
     @Override
     public void borrar(int id) {
         String sql = "DELETE FROM Autor WHERE id_autor = ?";
@@ -62,13 +67,15 @@ public class AutorDAO implements IAutorDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             int filas = ps.executeUpdate();
-            if (filas > 0) return;
-            throw new RuntimeException("No se encontró ningún autor con id: " + id);
+            if (filas == 0) {
+                throw new RuntimeException("No se encontró ningún autor con id: " + id);
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Error al borrar autor", e);
         }
     }
 
+    // Actualiza todos los campos del autor con ese ID. Lanza error si no existe
     @Override
     public void modificar(Autor autor) {
         String sql = "UPDATE Autor SET nombre=?, apellido1=?, apellido2=?, nacionalidad=? WHERE id_autor=?";
@@ -80,8 +87,9 @@ public class AutorDAO implements IAutorDAO {
             ps.setString(4, autor.getNacionalidad());
             ps.setInt(5, autor.getIdAutor());
             int filas = ps.executeUpdate();
-            if (filas > 0) return;
-            throw new RuntimeException("No se encontró ningún autor con id: " + autor.getIdAutor());
+            if (filas == 0) {
+                throw new RuntimeException("No se encontró ningún autor con id: " + autor.getIdAutor());
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Error al modificar autor", e);
         }

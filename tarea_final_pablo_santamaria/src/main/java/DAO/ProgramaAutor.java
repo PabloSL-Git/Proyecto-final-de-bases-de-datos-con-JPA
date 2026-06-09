@@ -1,7 +1,6 @@
 package DAO;
 
 import modelos.entidades.Autor;
-
 import java.util.List;
 import java.util.Scanner;
 
@@ -22,16 +21,15 @@ public class ProgramaAutor {
             System.out.println("0. Salir");
             System.out.print("Opción: ");
             opcion = Integer.parseInt(sc.nextLine());
-            System.out.println("\n");
 
             switch (opcion) {
-                case 1 -> listarTodos();
-                case 2 -> buscarPorId();
-                case 3 -> insertar();
-                case 4 -> modificar();
-                case 5 -> borrar();
-                case 0 -> System.out.println("Saliendo...");
-                default -> System.out.println("Opción no válida.");
+                case 1: listarTodos(); break;
+                case 2: buscarPorId(); break;
+                case 3: insertar(); break;
+                case 4: modificar(); break;
+                case 5: borrar(); break;
+                case 0: System.out.println("Saliendo..."); break;
+                default: System.out.println("Opción no válida.");
             }
         } while (opcion != 0);
     }
@@ -40,10 +38,10 @@ public class ProgramaAutor {
         List<Autor> autores = dao.obtenerTodos();
         if (autores.isEmpty()) {
             System.out.println("No hay autores registrados.");
-        } else {
-            autores.forEach(a -> System.out.println(
-                    a.getIdAutor() + " | " + a.getNombre() + " " +
-                            a.getApellido1() + " | " + a.getNacionalidad()));
+            return;
+        }
+        for (Autor a : autores) {
+            System.out.println(a.getIdAutor() + " | " + a.getNombre() + " " + a.getApellido1() + " | " + a.getNacionalidad());
         }
     }
 
@@ -52,13 +50,13 @@ public class ProgramaAutor {
         int id = Integer.parseInt(sc.nextLine());
         try {
             Autor a = dao.buscarPorId(id);
-            if (a != null)
-                System.out.println(
-                        a.getIdAutor() + " | " + a.getNombre() + " " +
-                                a.getApellido1() + " " + (a.getApellido2() != null ? a.getApellido2() : "") +
-                                " | " + a.getNacionalidad());
-            else
+            if (a == null) {
                 System.out.println("Autor no encontrado.");
+                return;
+            }
+            String ap2 = a.getApellido2();
+            if (ap2 == null) ap2 = "";
+            System.out.println(a.getIdAutor() + " | " + a.getNombre() + " " + a.getApellido1() + " " + ap2 + " | " + a.getNacionalidad());
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -75,8 +73,12 @@ public class ProgramaAutor {
         String ap2 = sc.nextLine();
         System.out.print("Nacionalidad: ");
         String nac = sc.nextLine();
+
+        // Si el usuario no escribió apellido 2, se guarda null
+        if (ap2.isEmpty()) ap2 = null;
+
         try {
-            dao.insertar(new Autor(id, nombre, ap1, ap2.isEmpty() ? null : ap2, nac));
+            dao.insertar(new Autor(id, nombre, ap1, ap2, nac));
             System.out.println("Autor insertado.");
         } catch (RuntimeException e) {
             System.out.println("Error al insertar autor: " + e.getMessage());
@@ -91,6 +93,7 @@ public class ProgramaAutor {
             System.out.println("Autor no encontrado.");
             return;
         }
+
         System.out.print("Nuevo nombre (" + existente.getNombre() + "): ");
         String nombre = sc.nextLine();
         System.out.print("Nuevo apellido 1 (" + existente.getApellido1() + "): ");
@@ -99,13 +102,15 @@ public class ProgramaAutor {
         String ap2 = sc.nextLine();
         System.out.print("Nueva nacionalidad (" + existente.getNacionalidad() + "): ");
         String nac = sc.nextLine();
+
+        // Si el usuario no escribe nada, se conserva el valor anterior
+        if (nombre.isEmpty()) nombre = existente.getNombre();
+        if (ap1.isEmpty()) ap1 = existente.getApellido1();
+        if (ap2.isEmpty()) ap2 = existente.getApellido2();
+        if (nac.isEmpty()) nac = existente.getNacionalidad();
+
         try {
-            dao.modificar(new Autor(
-                    id,
-                    nombre.isEmpty() ? existente.getNombre() : nombre,
-                    ap1.isEmpty() ? existente.getApellido1() : ap1,
-                    ap2.isEmpty() ? existente.getApellido2() : ap2,
-                    nac.isEmpty() ? existente.getNacionalidad() : nac));
+            dao.modificar(new Autor(id, nombre, ap1, ap2, nac));
             System.out.println("Autor modificado.");
         } catch (RuntimeException e) {
             System.out.println("Error al modificar autor: " + e.getMessage());

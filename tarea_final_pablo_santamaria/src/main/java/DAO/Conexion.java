@@ -9,6 +9,7 @@ public class Conexion {
     private static final String USUARIO = "pablo";
     private static final String CONTRASENA = "1234";
 
+    // Devuelve una nueva conexión cada vez que se llama
     public static Connection getConexion() throws SQLException {
         return DriverManager.getConnection(URL, USUARIO, CONTRASENA);
     }
