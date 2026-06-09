@@ -20,23 +20,25 @@ public class BibliotecaController extends AbstractCrudController<Biblioteca, Int
         try {
             transaction.begin();
             Biblioteca biblioteca = entityManager.find(Biblioteca.class, idBiblioteca);
-            if (biblioteca != null) {
-                long libros = (long) entityManager.createQuery(
-                        "SELECT COUNT(l) FROM Libro l WHERE l.biblioteca.idBiblioteca = :id")
-                        .setParameter("id", idBiblioteca)
-                        .getSingleResult();
-                long lectores = (long) entityManager.createQuery(
-                        "SELECT COUNT(l) FROM Lector l WHERE l.biblioteca.idBiblioteca = :id")
-                        .setParameter("id", idBiblioteca)
-                        .getSingleResult();
-                if (libros > 0 || lectores > 0) {
-                    throw new IllegalStateException(
-                            "No se puede eliminar: la biblioteca tiene "
-                                    + libros + " libro(s) y " + lectores + " lector(es) asociado(s).");
-                }
-                entityManager.remove(biblioteca);
-                System.out.println("Biblioteca eliminada");
+
+            if (biblioteca == null) {
+                throw new IllegalStateException("No se encontró la biblioteca con id: " + idBiblioteca);
             }
+            long libros = (long) entityManager.createQuery(
+                    "SELECT COUNT(l) FROM Libro l WHERE l.biblioteca.idBiblioteca = :id")
+                    .setParameter("id", idBiblioteca)
+                    .getSingleResult();
+            long lectores = (long) entityManager.createQuery(
+                    "SELECT COUNT(l) FROM Lector l WHERE l.biblioteca.idBiblioteca = :id")
+                    .setParameter("id", idBiblioteca)
+                    .getSingleResult();
+            if (libros > 0 || lectores > 0) {
+                throw new IllegalStateException(
+                        "No se puede eliminar: la biblioteca tiene "
+                                + libros + " libro(s) y " + lectores + " lector(es) asociado(s).");
+            }
+            entityManager.remove(biblioteca);
+            System.out.println("Biblioteca eliminada correctamente.");
             transaction.commit();
         } catch (IllegalStateException excepcionEstado) {
             if (transaction.isActive()) {
@@ -47,7 +49,7 @@ public class BibliotecaController extends AbstractCrudController<Biblioteca, Int
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }

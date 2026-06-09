@@ -5,7 +5,6 @@ import jakarta.persistence.EntityTransaction;
 import modelos.entidades.Prestamo;
 import utilidades.JPAUtil;
 
-
 public class PrestamoController extends AbstractCrudController<Prestamo, Integer> {
 
     public PrestamoController() {
@@ -30,7 +29,7 @@ public class PrestamoController extends AbstractCrudController<Prestamo, Integer
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }
@@ -54,7 +53,7 @@ public class PrestamoController extends AbstractCrudController<Prestamo, Integer
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }
@@ -66,21 +65,29 @@ public class PrestamoController extends AbstractCrudController<Prestamo, Integer
         try {
             transaction.begin();
             Prestamo prestamo = entityManager.find(Prestamo.class, idPrestamo);
-            if (prestamo != null) {
-                // Al eliminar el préstamo, dejamos el libro disponible de nuevo
-                if (prestamo.getLibro() != null) {
-                    prestamo.getLibro().setEstado("disponible");
-                    entityManager.merge(prestamo.getLibro());
-                }
-                entityManager.remove(prestamo);
-                System.out.println("Préstamo eliminado");
+            if (prestamo == null) {
+                throw new IllegalStateException("No se encontró el préstamo con id: " + idPrestamo);
             }
+            if (prestamo.getFechaFin() == null) {
+                throw new IllegalStateException("No se puede eliminar: el préstamo sigue activo.");
+            }
+            if (prestamo.getLibro() != null) {
+                prestamo.getLibro().setEstado("disponible");
+                entityManager.merge(prestamo.getLibro());
+            }
+            entityManager.remove(prestamo);
+            System.out.println("Préstamo eliminado correctamente.");
             transaction.commit();
+        } catch (IllegalStateException excepcionEstado) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw excepcionEstado;
         } catch (Exception excepcion) {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }

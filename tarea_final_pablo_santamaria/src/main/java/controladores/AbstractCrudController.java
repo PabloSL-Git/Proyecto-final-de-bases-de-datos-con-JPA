@@ -24,7 +24,7 @@ public abstract class AbstractCrudController<T, ID> {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }
@@ -41,7 +41,7 @@ public abstract class AbstractCrudController<T, ID> {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }

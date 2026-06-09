@@ -20,23 +20,25 @@ public class LibroController extends AbstractCrudController<Libro, Integer> {
         try {
             transaction.begin();
             Libro libro = entityManager.find(Libro.class, idLibro);
-            if (libro != null) {
-                long prestamosActivos = (long) entityManager.createQuery(
-                        "SELECT COUNT(p) FROM Prestamo p WHERE p.libro.idLibro = :id AND p.fechaFin IS NULL")
-                        .setParameter("id", idLibro)
-                        .getSingleResult();
-                if (prestamosActivos > 0) {
-                    throw new IllegalStateException(
-                            "No se puede eliminar: el libro tiene "
-                                    + prestamosActivos + " préstamo(s) activo(s) sin devolver.");
-                }
-                entityManager.createQuery(
-                        "UPDATE Prestamo p SET p.libro = null WHERE p.libro.idLibro = :id AND p.fechaFin IS NOT NULL")
-                        .setParameter("id", idLibro)
-                        .executeUpdate();
-                entityManager.remove(libro);
-                System.out.println("Libro eliminado");
+
+            if (libro == null) {
+                throw new IllegalStateException("No se encontró el libro con id: " + idLibro);
             }
+            long prestamosActivos = (long) entityManager.createQuery(
+                    "SELECT COUNT(p) FROM Prestamo p WHERE p.libro.idLibro = :id AND p.fechaFin IS NULL")
+                    .setParameter("id", idLibro)
+                    .getSingleResult();
+            if (prestamosActivos > 0) {
+                throw new IllegalStateException(
+                        "No se puede eliminar: el libro tiene "
+                                + prestamosActivos + " préstamo(s) activo(s).");
+            }
+            entityManager.createQuery(
+                    "UPDATE Prestamo p SET p.libro = null WHERE p.libro.idLibro = :id AND p.fechaFin IS NOT NULL")
+                    .setParameter("id", idLibro)
+                    .executeUpdate();
+            entityManager.remove(libro);
+            System.out.println("Libro eliminado correctamente.");
             transaction.commit();
         } catch (IllegalStateException excepcionEstado) {
             if (transaction.isActive()) {
@@ -47,7 +49,7 @@ public class LibroController extends AbstractCrudController<Libro, Integer> {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }

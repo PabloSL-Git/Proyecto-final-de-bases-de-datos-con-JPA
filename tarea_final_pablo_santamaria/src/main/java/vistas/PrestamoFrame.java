@@ -165,6 +165,8 @@ public class PrestamoFrame extends JFrame {
             controller.borrarPrestamo(id);
             JOptionPane.showMessageDialog(this, "Préstamo eliminado correctamente");
             listar();
+        } catch (IllegalStateException excepcionEstado) {
+            JOptionPane.showMessageDialog(this, excepcionEstado.getMessage(), "No se puede eliminar", JOptionPane.WARNING_MESSAGE);
         } catch (Exception excepcion) {
             JOptionPane.showMessageDialog(this, "Error al eliminar préstamo");
             excepcion.printStackTrace();

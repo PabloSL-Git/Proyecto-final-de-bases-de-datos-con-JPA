@@ -20,18 +20,24 @@ public class LectorController extends AbstractCrudController<Lector, Integer> {
         try {
             transaction.begin();
             Lector lector = entityManager.find(Lector.class, idLector);
-            if (lector != null) {
-                long prestamos = (long) entityManager.createQuery(
-                        "SELECT COUNT(p) FROM Prestamo p WHERE p.lector.idLector = :id AND p.fechaFin IS NULL")
-                        .setParameter("id", idLector)
-                        .getSingleResult();
-                if (prestamos > 0) {
-                    throw new IllegalStateException(
-                            "No se puede eliminar: el lector tiene " + prestamos + " préstamo(s) activo(s) sin devolver.");
-                }
-                entityManager.remove(lector);
-                System.out.println("Lector eliminado");
+
+            if (lector == null) {
+                throw new IllegalStateException("No se encontró el lector con id: " + idLector);
             }
+            long prestamosActivos = (long) entityManager.createQuery(
+                    "SELECT COUNT(p) FROM Prestamo p WHERE p.lector.idLector = :id AND p.fechaFin IS NULL")
+                    .setParameter("id", idLector)
+                    .getSingleResult();
+            if (prestamosActivos > 0) {
+                throw new IllegalStateException(
+                        "No se puede eliminar: el lector tiene " + prestamosActivos + " préstamo(s) activo(s).");
+            }
+            entityManager.createQuery(
+                    "UPDATE Prestamo p SET p.lector = null WHERE p.lector.idLector = :id")
+                    .setParameter("id", idLector)
+                    .executeUpdate();
+            entityManager.remove(lector);
+            System.out.println("Lector eliminado correctamente.");
             transaction.commit();
         } catch (IllegalStateException excepcionEstado) {
             if (transaction.isActive()) {
@@ -42,7 +48,7 @@ public class LectorController extends AbstractCrudController<Lector, Integer> {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            excepcion.printStackTrace();
+            throw new RuntimeException(excepcion);
         } finally {
             entityManager.close();
         }
