@@ -65,6 +65,8 @@ public class CredencialController extends AbstractCrudController<Credencial, Int
                             "No se puede eliminar: el lector de esta credencial tiene "
                                     + prestamos + " préstamo(s) activo(s).");
                 }
+                credencial.getLector().setCredencial(null);
+                entityManager.merge(credencial.getLector());
             }
             entityManager.remove(credencial);
             System.out.println("Credencial eliminada correctamente.");
